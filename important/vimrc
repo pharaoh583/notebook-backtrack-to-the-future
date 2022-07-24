@@ -1,0 +1,16 @@
+syntax on
+set number
+set tabstop=4
+set softtabstop=0 noexpandtab
+set shiftwidth=4	
+set autoindent
+inoremap { {<CR><Tab><CR><BS>}<Left><Up><Right>
+inoremap " ""<Left>
+inoremap [ []<Left>
+inoremap ( ()<Left>
+inoremap ' ''<Left>
+
+autocmd FileType cpp nnoremap     <F1>    :!g++ -g --std=c++11 % -o %:r<CR>
+" autocmd FileType cpp nnoremap   <leader>rm    :set makeprg=g++<CR>:make % -o %:r<CR>
+autocmd FileType cpp nnoremap     <F3>    :!./%:r<CR>
+autocmd FileType cpp nnoremap     <F2>    :!for f in %:r.*.test; do echo "TEST: $f"; ./%:r < $f; done<CR>
