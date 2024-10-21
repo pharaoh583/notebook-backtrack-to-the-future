@@ -1,52 +1,51 @@
-hash p[2001][2];
-const int maxn = 2001;
-hash B = 37;
-string t; 
-hash h[2001][2];
-const hash L = 1000000901LL;
-//const hash L = 1e9 + 7;
-const hash L2 = 1e9 + 9;
-const char startAlpha = 'a';
-hash V(char a){
-	return (hash)(a - startAlpha + 1);
-}
-
-void init(){
-	p[0][0] = p[0][1] = 1LL;
-	forsn(i, 1, maxn){
-		p[i][0] = (p[i - 1][0] * B)%L;	
-		p[i][1] = (p[i - 1][1] * B)%L2;
+struct Hash {
+	int P=1777771, MOD[2], PI[2];
+	vector<int> h[2],pi[2];
+	Hash(string& s){
+		MOD[0]=999727999; MOD[1]=1070777777;
+		PI[0]=325255434; PI[1]=10018302;
+		forn(k,2) h[k].resize(s.size()+1), pi[k].resize(s.size()+1);
+		forn(k,2){
+			h[k][0]=0;pi[k][0]=1;
+			ll p=1;
+			forsn(i,1,s.size()+1){
+				h[k][i]=(h[k][i-1]+p*s[i-1])%MOD[k];
+				pi[k][i]=(1LL*pi[k][i-1]*PI[k])%MOD[k];
+				p=(p*P)%MOD[k];
+			}
+		}
 	}
-	h[0][0] = h[0][1] = 0LL;
-	int n = t.size();
-	forsn(i, 1, n + 1){
-		h[i][0] = ((h[i - 1][0] * B)%L + V(t[i - 1]))%L;
-		h[i][1] = ((h[i - 1][1] * B)%L2 + V(t[i - 1]))%L2;
+   	 // get hash of range [s, e] indexed from 0 to n - 1
+	ll get(int s, int e){
+	    	e++;
+		ll h0=(h[0][e]-h[0][s]+MOD[0])%MOD[0];
+		h0=(1LL*h0*pi[0][s])%MOD[0];
+		ll h1=(h[1][e]-h[1][s]+MOD[1])%MOD[1];
+		h1=(1LL*h1*pi[1][s])%MOD[1];
+		return (h0<<32)|h1;
 	}
+};
 
-}
 
-pair<hash, hash> Hash(string a){
-	pair<hash, hash> hs = mp(0LL, 0LL);
-	forn(i, a.size()){
-		hs.F = ((hs.F * B)%L + V(a[i]))%L;
-		hs.S = ((hs.S * B)%L2 + V(a[i]))%L2;
+//this hash is slower but more accurate
+#define bint __int128
+struct Hash {
+	bint MOD=212345678987654321LL,P=1777771,PI=106955741089659571LL;
+	vector<bint> h,pi;
+	Hash(string& s){
+		assert((P*PI)%MOD==1);
+		h.resize(s.size()+1);pi.resize(s.size()+1);
+		h[0]=0;pi[0]=1;
+		bint p=1;
+		forsn(i,1,s.size()+1){
+			h[i]=(h[i-1]+p*s[i-1])%MOD;
+			pi[i]=(pi[i-1]*PI)%MOD;
+			p=(p*P)%MOD;
+		}
 	}
-	return hs;
-}
-
-pair<hash, hash> hashCalc(int a, int b){
-	return mp((h[b][0] - (p[b - a][0] * h[a][0])%L + L)%L, (h[b][1] - (p[b - a][1] * h[a][1])%L2 + L2)%L2);
-}
-
-vi KMP(string s){ //not quite but does the same
-	int n = s.size();
-	vi pos;
-	pair<hash, hash> hs = Hash(s);
-	forn(i, t.size() + 1 - n){
-		pair<hash, hash> sub = hashCalc(i, i + n);
-		if(sub.F == hs.F and sub.S == hs.S) pos.pb(i);
+	//get hash of range [s, e] indexed from 0 to n - 1
+	ll get(int s, int e){
+		e++;
+		return (((h[e]-h[s]+MOD)%MOD)*pi[s])%MOD;
 	}
-	return pos;
-}
-
+};
