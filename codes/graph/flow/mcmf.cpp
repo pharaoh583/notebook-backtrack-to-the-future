@@ -1,58 +1,53 @@
-/// Complexity: O(|V|*|E|^2*log(|E|))
-/// Algorithm for min cost max flow with dijkstra
-/// usually, V is small
-template <class type>
-struct mcmf {
-  struct edge { int u, v, cap, flow; type cost; };
-  int n;
-  vector<edge> ed;
-  vector<vector<int>> g;
-  vector<int> p;
-  vector<type> d, phi;
-  mcmf(int n) : n(n), g(n), p(n), d(n), phi(n) {}
-  void add_edge(int u, int v, int cap, type cost) {
-    g[u].push_back(ed.size());
-    ed.push_back({u, v, cap, 0, cost});
-    g[v].push_back(ed.size());
-    ed.push_back({v, u, 0, 0, -cost});
-  }
-  bool dijkstra(int s, int t) {
-    fill(d.begin(), d.end(), INF_TYPE);
-    fill(p.begin(), p.end(), -1);
-    set<pair<type, int>> q;
-    d[s] = 0;
-    for(q.insert({d[s], s}); q.size();) {
-      int u = (*q.begin()).second; q.erase(q.begin());
-      for(auto v : g[u]) {
-        auto &e = ed[v];
-        type nd = d[e.u]+e.cost+phi[e.u]-phi[e.v];
-        if(0 < (e.cap-e.flow) && nd < d[e.v]) {
-          q.erase({d[e.v], e.v});
-          d[e.v] = nd; p[e.v] = v;
-          q.insert({d[e.v], e.v});
-        }
-      }
-    }
-    for(int i = 0; i < n; i++) phi[i] = min(INF_TYPE, phi[i]+d[i]);
-    return d[t] != INF_TYPE;
-  }
-  pair<int, type> max_flow(int s, int t) {
-    type mc = 0;
-    int mf = 0;
-    fill(phi.begin(), phi.end(), 0);
-    while(dijkstra(s, t)) {
-      int flow = INF;
-      for(int v = p[t]; v != -1; v = p[ ed[v].u ])
-        flow = min(flow, ed[v].cap-ed[v].flow);
-      for(int v = p[t]; v != -1; v = p[ ed[v].u ]) {
-        edge &e1 = ed[v];
-        edge &e2 = ed[v^1];
-        mc += e1.cost*flow;
-        e1.flow += flow;
-        e2.flow -= flow;
-      }
-      mf += flow;
-    }
-    return {mf, mc};
-  }
+typedef ll tf;
+typedef ll tc;
+const tf INFFLOW=1e9;
+const tc INFCOST=1e9;
+struct MCF{
+	int n;
+	vector<tc> prio, pot; vector<tf> curflow; vector<int> prevedge,prevnode;
+	priority_queue<pair<tc, int>, vector<pair<tc, int>>, greater<pair<tc, int>>> q;
+	struct edge{int to, rev; tf f, cap; tc cost;};
+	vector<vector<edge>> g;
+	MCF(int n):n(n),prio(n),curflow(n),prevedge(n),prevnode(n),pot(n),g(n){}
+	void add_edge(int s, int t, tf cap, tc cost) {
+		g[s].pb((edge){t,SZ(g[t]),0,cap,cost});
+		g[t].pb((edge){s,SZ(g[s])-1,0,0,-cost});
+	}
+	pair<tf,tc> get_flow(int s, int t) {
+		tf flow=0; tc flowcost=0;
+		while(1){
+			q.push({0, s});
+			fill(ALL(prio),INFCOST); 
+			prio[s]=0; curflow[s]=INFFLOW;
+			while(!q.empty()) {
+				auto cur=q.top();
+				tc d=cur.fst;
+				int u=cur.snd;
+				q.pop();
+				if(d!=prio[u]) continue;
+				for(int i=0; i<SZ(g[u]); ++i) {
+					edge &e=g[u][i];
+					int v=e.to;
+					if(e.cap<=e.f) continue;
+					tc nprio=prio[u]+e.cost+pot[u]-pot[v];
+					if(prio[v]>nprio) {
+						prio[v]=nprio;
+						q.push({nprio, v});
+						prevnode[v]=u; prevedge[v]=i;
+						curflow[v]=min(curflow[u], e.cap-e.f);
+					}
+				}
+			}
+			if(prio[t]==INFCOST) break;
+			forn(i,n) pot[i]+=prio[i];
+			tf df=min(curflow[t], INFFLOW-flow);
+			flow+=df;
+			for(int v=t; v!=s; v=prevnode[v]) {
+				edge &e=g[prevnode[v]][prevedge[v]];
+				e.f+=df; g[v][e.rev].f-=df;
+				flowcost+=df*e.cost;
+			}
+		}
+		return {flow,flowcost};
+	}
 };
