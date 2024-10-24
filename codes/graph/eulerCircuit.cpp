@@ -22,7 +22,6 @@ void circuitToPath(int e) {
     }
 }
 void findCircuit(int u) {
-    vis[u] = true;
     for(auto p : g[u]) {
         int v = p.F;
         int id = p.S;
@@ -46,3 +45,4 @@ void findCircuit(int u) {
     // circuit is at eulerCircuit
     // for euler path changePath to start then use circuitToPath with end
 }
+ 
