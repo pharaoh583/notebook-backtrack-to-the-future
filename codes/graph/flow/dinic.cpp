@@ -8,7 +8,9 @@ struct network {
   network(int n) : n(n), lvl(n), g(n) {}
   void add_edge(int u, int v, int c) {
     g[u].push_back({v, c, g[v].size(), 0});
-    g[v].push_back({u, 0, g[u].size()-1, c});
+    g[v].push_back({u, 0, g[u].size()-1,c});
+    // The following line is for undirected graphs
+    // g[v].push_back({u, c, g[u].size()-1, 0});
   }
   bool bfs() {
     fill(lvl.begin(), lvl.end(), -1);
@@ -45,5 +47,19 @@ struct network {
     s = so; t = si;
     while(bfs()) res += dfs(s, INT_MAX);
     return res;
+  }
+  //first find max flow
+  vector<ii> minCut() {
+    bfs();
+    vector<ii> mc;
+    forn(i, n) {
+        if(lvl[i] == -1) continue;
+        for(auto &e : g[i]) {
+            if(lvl[e.v] == -1) {
+                mc.pb({i, e.v});
+            }
+        }
+    }
+    return mc;
   }
 };
