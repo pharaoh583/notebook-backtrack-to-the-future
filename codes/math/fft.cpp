@@ -1,6 +1,6 @@
 // MAXN must be power of 2 !!
 // MAXN = 131072, or MAXN = 1048576 
-// remember that poly(n) * poly(m) = poly(n * m) to define MAXN
+// remember that poly(n) * poly(m) = poly(n + m) to define MAXN
 // MOD-1 needs to be a multiple of MAXN !!
 // big mod and primitive root for NTT:
 typedef ll tf;
