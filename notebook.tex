@@ -1,0 +1,1333 @@
+\documentclass[10pt, landscape, twocolumn, a4paper, notitlepage]{article}
+\usepackage{hyperref}
+\usepackage[spanish, activeacute]{babel}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{svnkw}
+\usepackage{rotating}
+\usepackage{amsmath}
+
+%%% Márgenes
+\setlength{\columnsep}{0.25in}    % default=10pt
+\setlength{\columnseprule}{0.5pt}    % default=0pt (no line)
+
+\addtolength{\textheight}{2.35in}
+\addtolength{\topmargin}{-0.9in}     % ~ -0.5 del incremento anterior
+
+\addtolength{\textwidth}{1.1in}
+\addtolength{\oddsidemargin}{-0.60in} % -0.5 del incremento anterior
+\setlength{\headwidth}{\textwidth}
+\addtolength{\headwidth}{0.1in}
+
+\setlength{\headsep}{0.08in}
+\setlength{\parskip}{0in}
+\setlength{\headheight}{15pt}
+\setlength{\parindent}{0mm}
+
+%%% Encabezado y pie de página
+\pagestyle{fancy}
+\fancyhead[LO]{\leftmark\ -\ \rightmark}
+%\fancyhead[C]{\textbf{AJI-UBA}}
+\fancyhead[RO]{\textbf{Backtrack to the Future} - rev \revision\ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
+\fancyfoot{}
+\fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footruleskip}{0.2in}
+
+%%% Configuración de Listings
+\lstloadlanguages{C++}
+\lstnewenvironment{code}
+	{%\lstset{	numbers=none, frame=lines, basicstyle=\small\ttfamily, }%
+	 \csname lst@SetFirstLabel\endcsname}
+	{\csname lst@SaveFirstLabel\endcsname}
+\lstset{% general command to set parameter(s)
+	language=C++, basicstyle=\small\ttfamily, keywordstyle=\slshape,
+	emph=[1]{tipo,usa}, emphstyle={[1]\sffamily\bfseries},
+	morekeywords={tint,forn,forsn},
+	basewidth={0.47em,0.40em},
+	columns=fixed, fontadjust, resetmargins, xrightmargin=5pt, xleftmargin=15pt,
+	flexiblecolumns=false, tabsize=2, breaklines,	breakatwhitespace=false, extendedchars=true,
+	numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=9pt,
+	frame=l, framesep=3pt,
+}
+
+\newcommand{\comb}[2]{{}_{#1}\mathrm{C}_{#2}}
+
+\begin{document}
+
+\tableofcontents\newpage
+
+%%% El texto propiamente dicho
+\nbtitle{Backtrack to the Future - Reference}
+\section{Algoritmos}
+Para los randoms agregar al inicio del main
+\begin{code}
+srand ( unsigned ( std::time(0) ) ); //cambiar la semilla si WA
+\end{code}
+\textbf{\#include $<$algorithm$>$ \#include $<$numeric$>$ \\}
+\begin{tabular}{|l|l|l|} \hline
+\textbf{Algo} & \textbf{Params} &  \textbf{Funcion} \\  \hline
+%swap & e1, e2 &  da vuelta e1,e2 & $1$ \\ \hline
+sort, stable\_sort & f, l &  ordena el intervalo \\  \hline
+partial\_sort & f, m, l, [cmp] & [f,m) son los m-f menores en orden, \\ && [m,l) es el resto en algun orden \\ \hline
+%is\_sorted & f, l &  \textit{bool} si esta ordenado \\  \hline
+nth\_element & f, nth, l & \textit{void} ordena el n-esimo, y \\ && particiona el resto \\  \hline
+fill, fill\_n & f, l / n, elem & \textit{void} llena [f, l) o [f, \\ && f+n) con elem \\  \hline
+lower\_bound, upper\_bound & f, l, elem & \textit{it} al primer / ultimo donde se \\ && puede insertar elem para que\\ && quede ordenada \\  \hline
+binary\_search & f, l, elem & \textit{bool} esta elem en [f, l) \\  \hline
+copy & f, l, resul & hace resul+$i$=f+$i$ $\forall i$ \\  \hline
+find, find\_if, find\_first\_of & f, l, elem & \textit{it} encuentra i $\in$[f,l) tq. i$=$elem, \\ & / pred / f2, l2 & pred(i), i$\in$[f2,l2) \\ \hline
+count, count\_if & f, l, elem/pred & cuenta elem, pred(i) \\ \hline
+search & f, l, f2, l2 & busca [f2,l2) $\in$ [f,l) \\ \hline
+reverse & f, l & da vuelta \\ \hline
+partition, stable\_partition & f, l, pred & pred(i) ad, !pred(i) atras \\ \hline
+%min, max & e1, e2 & men / may & $1$ \\ \hline
+min\_element, max\_element & f, l, [comp] & \textit{it} min, max de [f,l] \\ \hline
+lexicographical\_compare & f1,l1,f2,l2 & \textit{bool} con [f1,l1]<[f2,l2] \\ \hline
+next/prev\_permutation & f,l & deja en [f,l) la perm sig, ant \\ \hline
+set\_intersection, & f1, l1, f2, l2, res & [res, $\ldots$) la op. de conj\\
+set\_difference, set\_union, & & \\
+set\_symmetric\_difference, & & \\ \hline
+accumulate & f,l,i,[op] & \textit{T} $=$ $\sum$/oper de [f,l) \\ \hline
+inner\_product & f1, l1, f2, i & \textit{T} $=$ i $+$ [f1, l1) . [f2, $\ldots$ ) \\ \hline
+partial\_sum & f, l, r, [op] & r+i = $\sum$/oper de [f,f+i] $\forall i \in$[f,l) \\ \hline
+adjacent\_difference & f, l, r, [op] & r[0]=f[0], r[i]=f[i] - f[i-1] $\forall i \in$[1,l-f) \\ \hline
+rand & & $$int \in [0, RMAX]; RMAX >= 32767$$ \\ \hline
+random\_shuffle & b, e & Hace un shuffle \\ \hline
+\end{tabular}
+
+\section{Template}
+\begin{code}
+#include <bits/stdc++.h>
+#define forn(i, n) for(int i=0;i<int(n);i++)
+#define forsn(i,s,n) for(int i=int(s);i<int(n);i++)
+#define DBG(x) cout<<#x<<" = "<<(x)<<el;
+#define all(v) (v).begin(),(v).end()
+#define FastIO ios_base::sync_with_stdio(false);cin.tie(NULL)
+#define ll long long
+#define ii pair<int,int>
+#define vi vector<int>
+#define F first
+#define S second
+#define pb push_back
+#define pf push_front
+#define mp make_pair
+#define el "\n"
+void solve(){
+    //TODO: implement solution here
+}
+int main(){
+    FastIO;
+    int t = 1; 
+    //int t; cin>>t;
+    while(t--) solve();
+}
+\end{code}
+
+
+\section{Estructuras}
+\subsection{Mo's *}
+\begin{code}
+inline int64_t hilbertOrder(int x, int y, int pow, int rotate) {
+    if (pow == 0) return 0;
+    int hpow = 1 << (pow-1);
+    int seg = (x < hpow) 
+            ? ((y < hpow) ? 0 : 3) 
+            : ((y < hpow) ? 1 : 2);
+    seg = (seg + rotate) & 3;
+    const int rotateDelta[4] = {3, 0, 0, 1};
+    int nx = x & (x ^ hpow), ny = y & (y ^ hpow);
+    int nrot = (rotate + rotateDelta[seg]) & 3;
+    int64_t subSquareSize = int64_t(1) << (2*pow - 2);
+    int64_t ans = seg * subSquareSize;
+    int64_t add = gilbertOrder(nx, ny, pow-1, nrot);
+    ans += (seg == 1 || seg == 2) ? add : (subSquareSize - add - 1);
+    return ans;
+}
+const int bs = 450;
+struct Query {
+    int l, r, idx;
+    int64_t ord;
+    inline void calcOrder() {
+        ord = gilbertOrder(l, r, 21, 0);
+    }
+    bool operator <(query &other) const {
+        return ord < other.ord;
+    }
+    static bool cmp(pair<int, int> p, pair<int, int> q) {
+        if (p.first / bs != q.first / bs)
+            return p < q;
+        return (p.first / bs & 1) ? (p.second < q.second) : (p.second > q.second);
+    }
+};
+//TODO: implement add function add(idx)
+//TODO: implement remove function remove(idx)
+//TODO: find way to get answer
+vector<int> mo_s_algorithm(vector<Query> queries) {
+    vector<int> answers(queries.size());
+    sort(all(queries);
+    // TODO: initialize data structure
+    int cur_l = 0;
+    int cur_r = -1;
+    for (Query q : queries) {
+        while (cur_l > q.l) {
+            cur_l--;add(cur_l);
+        }
+        while (cur_r < q.r) {
+            cur_r++;add(cur_r);
+        }
+        while (cur_l < q.l) {
+            remove(cur_l);cur_l++;
+        }
+        while (cur_r > q.r) {
+            remove(cur_r);cur_r--;
+        }
+        answers[q.idx] = get_answer();
+    }
+    return answers;
+}
+\end{code}
+\subsection{Treap implicit}
+Example that supports range reverse and addition updates, and range sum query
+(commented parts are specific to this  problem)
+\begin{code}
+typedef struct item *pitem;
+struct item {
+	int pr,cnt,val;
+//	int sum; // (paramters for range query)
+//	bool rev;int add; // (parameters for lazy prop)
+	pitem l,r;
+	item(int val): pr(rand()),cnt(1),val(val),l(0),r(0)/*,sum(val),rev(0),add(0)*/ {}
+};
+void push(pitem it){
+	if(it){
+		/*if(it->rev){
+			swap(it->l,it->r);
+			if(it->l)it->l->rev^=true;
+			if(it->r)it->r->rev^=true;
+			it->rev=false;
+		}
+		it->val+=it->add;it->sum+=it->cnt*it->add;
+		if(it->l)it->l->add+=it->add;
+		if(it->r)it->r->add+=it->add;
+		it->add=0;*/
+	}
+}
+int cnt(pitem t){return t?t->cnt:0;}
+// int sum(pitem t){return t?push(t),t->sum:0;}
+void upd_cnt(pitem t){
+	if(t){
+		t->cnt=cnt(t->l)+cnt(t->r)+1;
+		// t->sum=t->val+sum(t->l)+sum(t->r);
+	}
+}
+void merge(pitem& t, pitem l, pitem r){
+	push(l);push(r);
+	if(!l||!r)t=l?l:r;
+	else if(l->pr>r->pr)merge(l->r,l->r,r),t=l;
+	else merge(r->l,l,r->l),t=r;
+	upd_cnt(t);
+}
+void split(pitem t, pitem& l, pitem& r, int sz){ // sz:desired size of l
+	if(!t){l=r=0;return;}
+	push(t);
+	if(sz<=cnt(t->l))split(t->l,l,t->l,sz),r=t;
+	else split(t->r,t->r,r,sz-1-cnt(t->l)),l=t;
+	upd_cnt(t);
+}
+void output(pitem t){ // useful for debugging
+	if(!t)return;
+	push(t);
+	output(t->l);printf(" %d",t->val);output(t->r);
+}
+// use merge and split for range updates and queries
+\end{code}
+\subsection{Heavy-Light Decomposition}
+\begin{code}
+//TODO: implement oper function
+//TODO: define MAXN
+//TODO: define NEUT neutral value for queries on SegTree and hld
+//TODO: implement SegTree, queries should be [l, r)
+vi g[MAXN];
+int wg[MAXN],dad[MAXN],dep[MAXN]; // weight,father,depth
+void dfs1(int x){
+	wg[x]=1;
+	for(int y:g[x])if(y!=dad[x]){
+		dad[y]=x;dep[y]=dep[x]+1;dfs1(y);
+		wg[x]+=wg[y];
+	}
+}
+int curpos,pos[MAXN],head[MAXN];
+void hld(int x, int c){
+	if(c<0)c=x;
+	pos[x]=curpos++;head[x]=c;
+	int mx=-1;
+	for(int y:g[x])if(y!=dad[x]&&(mx<0||wg[mx]<wg[y]))mx=y;
+	if(mx>=0)hld(mx,c);
+	for(int y:g[x])if(y!=mx&&y!=dad[x])hld(y,-1);
+}
+void hld_init(){dad[0]=-1;dep[0]=0;dfs1(0);curpos=0;hld(0,-1);}
+ll query(int x, int y, SegTree& rmq){
+	ll r=NEUT;
+	while(head[x]!=head[y]){
+		if(dep[head[x]]>dep[head[y]])swap(x,y);
+		r=oper(r,rmq.query(pos[head[y]],pos[y]+1));
+		y=dad[head[y]];
+	}
+	if(dep[x]>dep[y])swap(x,y); // now x is lca
+	r=oper(r,rmq.query(pos[x],pos[y]+1));
+	return r;
+}
+// for creation call hld_init after reading g then create z such that z[pos[i]] = cost[i]
+// init SegTree with z, then you can start doing queries
+// for updating: rmq.upd(pos[x],v);
+// queries on edges: - assign values of edges to "child" node
+//                   - change pos[x] to pos[x]+1 i
+\end{code}
+\subsection{Centroid decomposition *}
+\begin{code}
+vi s;
+vi g[200001];
+int n;
+vector<bool> disabled;
+int treeSize(int u, int p) {
+    int sz = 1;
+    for(auto v : g[u]) {
+        if(v != p and !disabled[v]) {
+            sz += treeSize(v, u);
+        }
+    }
+    return s[u] = sz;
+} 
+int findCentroid(int u, int size) {
+    for(auto v : g[u]) {
+        if(disabled[v]) continue;
+        if(s[v]*2 > size) {
+            s[u] -= s[v];  
+            return findCentroid(v, size);
+        }
+    }
+    return u;
+}
+ll centroidDecomposition(int provRoot = 0) {
+    int sz = treeSize(provRoot, provRoot);
+    //TODO: check if you can end early based on size
+    int centroid = findCentroid(provRoot, sz);
+    ll res = 0;
+    //TODO: implement logic to process centroid
+    disabled[centroid] = true;
+    //TODO: clear data if necessary
+    return res;
+}
+//TODO: start disabled and s
+\end{code}
+
+\subsection{El versatil}
+\begin{code}
+//this example supports range sum queries, range updates [l,r] = x and 
+//range sum updates [l,r] += x
+class SegTree {
+private:
+    int n;
+    vi t, a;
+    vi lazyUpd, lazySum;
+    void build(int p, int L, int R) {
+        if(L == R) {t[p] = a[L]; return;}
+        int m = (L + R)/2;
+        build(p<<1, L, m); build(p<<1|1, m + 1, R);
+        t[p] = t[p<<1] + t[p<<1|1];
+    }
+    void push(int p, int L, int R) {
+        if(L == R) {
+            if(lazyUpd[p] != -1) {
+                t[p] = lazyUpd[p];
+            }
+            t[p] += lazySum[p];
+            lazyUpd[p] = -1; lazySum[p] = 0;
+            return;
+        }
+        if(lazyUpd[p] != -1) {
+            t[p] = lazyUpd[p] * (R - L + 1);
+            lazyUpd[p<<1] = lazyUpd[p<<1|1] = lazyUpd[p];
+            lazyUpd[p] = -1;
+            lazySum[p<<1] = lazySum[p<<1|1] = 0;
+        }
+        t[p] += lazySum[p] * (R - L + 1);
+        lazySum[p<<1] += lazySum[p];
+        lazySum[p<<1|1] += lazySum[p];
+        lazySum[p] = 0;
+    }
+    ll query(int p, int L, int R, int l, int r) {
+        if(l > r) return 0;
+        push(p, L, R);
+        if(l <= L and R <= r) return t[p];
+        int m = (L + R)/2;
+        return query(p<<1, L, m, l, min(r, m)) +
+               query(p<<1|1, m + 1, R, max(l, m + 1), r);
+    }
+    void update(int p, int L, int R, int l, int r, int v) {
+        if(l > r) return;
+        push(p, L, R);
+        if(l <= L and R <= r) {
+            lazyUpd[p] = v; lazySum[p] = 0; return;
+        }
+        int m = (L + R)/2;
+        update(p<<1, L, m, l, min(m, r), v);
+        update(p<<1|1, m + 1, R, max(m + 1, l), r, v);
+        push(p<<1, L, m);
+        push(p<<1|1, m + 1, R);
+        t[p] = t[p<<1] + t[p<<1|1];
+    }
+    void sum(int p, int L, int R, int l, int r, int v) {
+        if(l > r) return;
+        push(p, L, R);
+        if(l <= L and R <= r) {
+            lazySum[p] += v; return;
+        }
+        int m = (L + R)/2;
+        sum(p<<1, L, m, l, min(m, r), v);
+        sum(p<<1|1, m + 1, R, max(m + 1, l), r, v);
+        push(p<<1, L, m);
+        push(p<<1|1, m + 1, R);
+        t[p] = t[p<<1] + t[p<<1|1];
+    }
+public: 
+    SegTree(int n) : n(n), t(4 * n, 0), lazySum(4 * n, 0), 
+    lazyUpd(4 * n, -1) { }
+    SegTree(vi A) : SegTree(A.size()) {
+        a = A;
+        build(1, 0, n - 1);
+    }
+    ll query(int l, int r) {
+        return query(1, 0, n - 1, l, r);
+    }
+    void update(int l, int r, ll v) {
+        update(1, 0, n - 1, l, r, v);
+    }
+    void sum(int l, int r, ll v) {
+        sum(1, 0, n - 1, l, r, v);
+    }
+};
+\end{code}
+\section{Secci\'on de Andres}
+\subsection{Mobius *}
+Add Multiplicative functions
+\begin{code}
+//TODO: add multiplicative functions
+//TODO: define MAXN
+short mu[MAXN] = {0,1};
+void mobius(){
+	fore(i,1,MAXN)if(mu[i])for(int j=i+i;j<MAXN;j+=i)mu[j]-=mu[i];
+}
+\end{code}
+\subsection{Chinese Remainder Theorem *}
+\begin{code}
+ll gcd(ll a, ll b){while(b){ll t=a%b;a=b;b=t;}return a;}
+pair<ll,ll> extendedEuclid (ll a, ll b){ //a * x + b * y = gcd(a,b)
+	ll x,y;
+	if (b==0) return {1,0};
+	auto p=extendedEuclid(b,a%b);
+	x=p.snd;
+	y=p.fst-(a/b)*x;
+	if(a*x+b*y==-gcd(a,b)) x=-x, y=-y;
+	return {x,y};
+}
+pair<pair<ll,ll>,pair<ll,ll> > diophantine(ll a,ll b, ll r) {
+	//a*x+b*y=r where r is multiple of gcd(a,b);
+	ll d=gcd(a,b);
+	a/=d; b/=d; r/=d;
+	auto p = extendedEuclid(a,b);
+	p.fst*=r; p.snd*=r;
+	assert(a*p.fst+b*p.snd==r);
+	return {p,{-b,a}}; // solutions: p+t*ans.snd
+}
+ll inv(ll a, ll m) {
+	assert(gcd(a,m)==1);
+	ll x = diophantine(a,m,1).fst.fst;
+	return ((x%m)+m)%m;
+}
+#define mod(a,m) (((a)%m+m)%m)
+pair<ll,ll> sol(tuple<ll,ll,ll> c){ //requires inv, diophantine
+    ll a=get<0>(c), x1=get<1>(c), m=get<2>(c), d=gcd(a,m);
+    if(d==1) return {mod(x1*inv(a,m),m), m};
+    else return x1%d ? ii({-1LL,-1LL}) : sol(make_tuple(a/d,x1/d,m/d));
+}
+pair<ll,ll> crt(vector< tuple<ll,ll,ll> > cond) { // returns: (sol, lcm)
+	ll x1=0,m1=1,x2,m2;
+	for(auto t:cond){
+		tie(x2,m2)=sol(t);
+		if((x1-x2)%gcd(m1,m2))return {-1,-1};
+		if(m1==m2)continue;
+		ll k=diophantine(m2,-m1,x1-x2).fst.snd,l=m1*(m2/gcd(m1,m2));
+		x1=mod((__int128)m1*k+x1,l);m1=l;
+	}
+	return sol(make_tuple(1,x1,m1));
+} //cond[i]={ai,bi,mi} ai*xi=bi (mi); assumes lcm fits in ll
+\end{code}
+\subsection{Factoriales e Inversas}
+\begin{code}
+const ll M = 998244353; //TODO: change mod
+int maxi = 200010;
+ll F[200010], INV[200010], FI[200010];
+void init(){
+	F[0] = 1; forsn(i, 1, maxi) F[i] = F[i-1]*i %M;
+	INV[1] = 1; forsn(i, 2, maxi) INV[i] = M - (ll)(M/i)*INV[M%i]%M;
+	FI[0] = 1; forsn(i, 1, maxi) FI[i] = FI[i-1]*INV[i] %M;
+}
+ll modInverse(ll a){
+    return modPower(a, M - 2); //TODO: implement binary exp
+}
+\end{code}
+\subsection{Teoremas y propiedades}%
+\subsubsection{Ecuaci'on de grafo planar}
+$regiones = ejes - nodos + componentesConexas + 1$
+\subsubsection{Ternas pitag'oricas}
+Hay ternas pitag'oricas de la forma: $(a,b,c) = ( m^2-n^2 , 2\cdot m\cdot n, m^2+n^2 ) \forall m > n > 0 $\\
+y son primitivas \emph{sii} $(2 | m\cdot n) \land (mcd(m, n) = 1)$\\
+(Todas las primitivas (con $(a,b)$ no ordenado) son de esa forma.) Obs: $(\mathrm{m}+i\mathrm{n})^2 = \mathrm{a}+i\mathrm{b}$
+\subsubsection{Teorema de Pick}
+$A = I + \frac{B}{2} - 1$, donde $I =$ interior y $B =$ borde
+%
+\subsubsection{Propiedades varias}
+$\sum_{i=0}^n{r^i} = \frac{r^{n+1}-1}{r-1}$ ; $\sum_{i=1}^n{i^2} = \frac{n\cdot(n+1)\cdot(2n+1)}{6}$ ;
+$\sum_{i=1}^n{i^3} = \left(\frac{n\cdot(n+1)}{2}\right)^2$ \\
+$\sum_{i=1}^n{i^4} = \frac{n\cdot(n+1)\cdot(2n+1)\cdot(3n^2+3n-1)}{12}$ ;
+$\sum_{i=1}^{ n} i^5 = \left(\frac{ n \cdot (n+1)}{2}\right) ^2 \cdot \frac{2 n ^2 + 2n - 1}{3}$ \\
+%
+$\sum_{i=1}^n{\binom{n-1}{i-1}} = 2^{n-1}$ ; $\sum_{i=1}^n{i\cdot\binom{n-1}{i-1}} = n\cdot2^{n-1}$ \\
+%
+\subsubsection{Desarreglos}
+$!n = n(!(n - 1)) + (-1)^n; n > 0$ 
+\subsection{Tablas y cotas}
+\subsubsection{Primos}
+2 3 5 7 11 13 17 19 23 29
+31 37 41 43 47 53 59 61 67 71
+73 79 83 89 97 101 103 107 109 113
+127 131 137 139 149 151 157 163 167 173
+179 181 191 193 197 199 211 223 227 229
+233 239 241 251 257 263 269 271 277 281
+283 293 307 311 313 317 331 337 347 349
+353 359 367 373 379 383 389 397 401 409
+419 421 431 433 439 443 449 457 461 463
+467 479 487 491 499 503 509 521 523 541
+547 557 563 569 571 577 587 593 599 601
+607 613 617 619 631 641 643 647 653 659
+661 673 677 683 691 701 709 719 727 733
+739 743 751 757 761 769 773 787 797 809
+811 821 823 827 829 839 853 857 859 863
+877 881 883 887 907 911 919 929 937 941
+947 953 967 971 977 983 991 997 1009 1013
+1019 1021 1031 1033 1039 1049 1051 1061 1063 1069
+1087 1091 1093 1097 1103 1109 1117 1123 1129 1151
+1153 1163 1171 1181 1187 1193 1201 1213 1217 1223
+1229 1231 1237 1249 1259 1277 1279 1283 1289 1291
+1297 1301 1303 1307 1319 1321 1327 1361 1367 1373
+1381 1399 1409 1423 1427 1429 1433 1439 1447 1451
+1453 1459 1471 1481 1483 1487 1489 1493 1499 1511
+1523 1531 1543 1549 1553 1559 1567 1571 1579 1583
+1597 1601 1607 1609 1613 1619 1621 1627 1637 1657
+1663 1667 1669 1693 1697 1699 1709 1721 1723 1733
+1741 1747 1753 1759 1777 1783 1787 1789 1801 1811
+1823 1831 1847 1861 1867 1871 1873 1877 1879 1889
+1901 1907 1913 1931 1933 1949 1951 1973 1979 1987
+1993 1997 1999 2003 2011 2017 2027 2029 2039 2053
+2063 2069 2081
+
+%2083 2087 2089 2099 2111 2113 2129
+%2131 2137 2141 2143 2153 2161 2179 2203 2207 2213
+%2221 2237 2239 2243 2251 2267 2269 2273 2281 2287
+%2293 2297 2309 2311 2333 2339 2341 2347 2351 2357
+%2371 2377 2381 2383 2389 2393 2399 2411 2417 2423
+%2437 2441 2447 2459 2467 2473 2477 2503 2521 2531
+%2539 2543 2549 2551 2557 2579 2591 2593 2609 2617
+%2621 2633 2647 2657 2659 2663 2671 2677 2683 2687
+%2689 2693 2699 2707 2711 2713 2719 2729 2731 2741
+%2749 2753 2767 2777 2789 2791 2797 2801 2803 2819
+%2833 2837 2843 2851 2857 2861 2879 2887 2897 2903
+%2909 2917 2927 2939 2953 2957 2963 2969 2971 2999
+%3001 3011 3019 3023 3037 3041 3049 3061 3067 3079
+%3083 3089 3109 3119 3121 3137 3163 3167 3169 3181
+%3187 3191 3203 3209 3217 3221 3229 3251 3253 3257
+%3259 3271 3299 3301 3307 3313 3319 3323 3329 3331
+%3343 3347 3359 3361 3371 3373 3389 3391 3407 3413
+%3433 3449 3457 3461 3463 3467 3469 3491 3499 3511
+%3517 3527 3529 3533 3539 3541 3547 3557 3559 3571\\
+\paragraph{Primos cercanos a $10^n$}\ \\
+9941 9949 9967 9973 10007 10009 10037 10039 10061 10067 10069 10079\\
+99961 99971 99989 99991 100003 100019 100043 100049 100057 100069\\
+999959 999961 999979 999983 1000003 1000033 1000037 1000039\\
+9999943 9999971 9999973 9999991 10000019 10000079 10000103 10000121\\
+99999941 99999959 99999971 99999989 100000007 100000037 100000039 100000049\\
+999999893 999999929 999999937 1000000007 1000000009 1000000021 1000000033
+
+\paragraph{Cantidad de primos menores que $10^n$}\ \\
+$\pi(10^1)$ = 4 ;
+$\pi(10^2)$ = 25 ;
+$\pi(10^3)$ = 168 ;
+$\pi(10^4)$ = 1229 ;
+$\pi(10^5)$ = 9592 \\
+$\pi(10^6)$ = 78.498 ;
+$\pi(10^7)$ = 664.579 ;
+$\pi(10^8)$ = 5.761.455 ;
+$\pi(10^9)$ = 50.847.534 \\
+$\pi(10^{10})$ = 455.052,511 ;
+$\pi(10^{11})$ = 4.118.054.813 ;
+$\pi(10^{12})$ = 37.607.912.018% ;
+% Fuente: http://primes.utm.edu/howmany.shtml#table
+
+\subsubsection{Divisores}
+Cantidad de divisores ($\sigma_0$) para \emph{algunos} $n / \neg\exists n'<n, \sigma_0(n') \geqslant \sigma_0(n)$ \\
+$\sigma_0(60)$ = 12 ; $\sigma_0(120)$ = 16 ; $\sigma_0(180)$ = 18 ; $\sigma_0(240)$ = 20 ; $\sigma_0(360)$ = 24 \\
+$\sigma_0(720)$ = 30 ; $\sigma_0(840)$ = 32 ; $\sigma_0(1260)$ = 36 ; $\sigma_0(1680)$ = 40 ; $\sigma_0(10080)$ = 72 \\ $\sigma_0(15120)$ = 80 ; $\sigma_0(50400)$ = 108 ; $\sigma_0(83160)$ = 128 ; $\sigma_0(110880)$ = 144 \\
+$\sigma_0(498960)$ = 200 ; $\sigma_0(554400)$ = 216 ; $\sigma_0(1081080)$ = 256 ; $\sigma_0(1441440)$ = 288  $\sigma_0(4324320)$ = 384 ; $\sigma_0(8648640)$ = 448
+
+%
+Suma de divisores ($\sigma_1$) para \emph{algunos} $n / \neg\exists n'<n, \sigma_1(n') \geqslant \sigma_1(n)$ \\
+$\sigma_1(96)$ = 252 ; $\sigma_1(108)$ = 280 ; $\sigma_1(120)$ = 360 ; $\sigma_1(144)$ = 403 ; $\sigma_1(168)$ = 480 \\
+$\sigma_1(960)$ = 3048 ; $\sigma_1(1008)$ = 3224 ; $\sigma_1(1080)$ = 3600 ; $\sigma_1(1200)$ = 3844 \\
+$\sigma_1(4620)$ = 16128 ; $\sigma_1(4680)$ = 16380 ; $\sigma_1(5040)$ = 19344 ; $\sigma_1(5760)$ = 19890 \\
+$\sigma_1(8820)$ = 31122 ; $\sigma_1(9240)$ = 34560 ; $\sigma_1(10080)$ = 39312 ; $\sigma_1(10920)$ = 40320 \\
+$\sigma_1(32760)$ = 131040 ; $\sigma_1(35280)$ = 137826 ; $\sigma_1(36960)$ = 145152 ; $\sigma_1(37800)$ = 148800 \\
+$\sigma_1(60480)$ = 243840 ; $\sigma_1(64680)$ = 246240 ; $\sigma_1(65520)$ = 270816 ; $\sigma_1(70560)$ = 280098 \\
+$\sigma_1(95760)$ = 386880 ; $\sigma_1(98280)$ = 403200 ; $\sigma_1(100800)$ = 409448  \\
+$\sigma_1(491400)$ = 2083200 ; $\sigma_1(498960)$ = 2160576 ; $\sigma_1(514080)$ = 2177280 \\
+$\sigma_1(982800)$ = 4305280 ; $\sigma_1(997920)$ = 4390848 ; $\sigma_1(1048320)$ = 4464096 \\
+$\sigma_1(4979520)$ = 22189440 ; $\sigma_1(4989600)$ = 22686048 ; $\sigma_1(5045040)$ = 23154768 \\
+$\sigma_1(9896040)$ = 44323200 ; $\sigma_1(9959040)$ = 44553600 ; $\sigma_1(9979200)$ = 45732192
+%
+%
+\subsubsection{Factoriales}
+\begin{tabular}{l|l}
+0! =	1             & 11! = 39.916.800  \\
+1! =	1             & 12! =	479.001.600	($\in \mathtt{int}$)\\
+2! =	2             & 13! =	6.227.020.800	\\
+3! =	6             & 14! =	87.178.291.200	\\
+4! =	24            & 15! =	1.307.674.368.000	\\
+5! =	120   			  & 16! =	20.922.789.888.000	\\
+6! =	720           & 17! =	355.687.428.096.000	\\
+7! =	5.040	        & 18! =	6.402.373.705.728.000	\\
+8! =	40.320	      & 19! =	121.645.100.408.832.000	\\
+9! =	362.880       & 20! =	2.432.902.008.176.640.000	($\in \mathtt{tint}$) \\
+10! =	3.628.800     & 21! =	51.090.942.171.709.400.000
+\end{tabular}
+
+max signed tint = 9.223.372.036.854.775.807 \\
+max unsigned tint = 18.446.744.073.709.551.615
+\subsection{FFT (Final Fourier Tactics)*}
+TODO: add operations
+\begin{code}
+// MAXN must be power of 2 !!
+// MAXN = 131072, or MAXN = 1048576 
+// remember that poly(n) * poly(m) = poly(n + m) to define MAXN
+// MOD-1 needs to be a multiple of MAXN !!
+// big mod and primitive root for NTT:
+typedef ll tf;
+typedef vector<tf> poly;
+const tf MOD=2305843009255636993,RT=5;
+// FFT
+struct CD {
+	double r,i;
+	CD(double r=0, double i=0):r(r),i(i){}
+	double real()const{return r;}
+	void operator/=(const int c){r/=c, i/=c;}
+};
+CD operator*(const CD& a, const CD& b){
+	return CD(a.r*b.r-a.i*b.i,a.r*b.i+a.i*b.r);}
+CD operator+(const CD& a, const CD& b){return CD(a.r+b.r,a.i+b.i);}
+CD operator-(const CD& a, const CD& b){return CD(a.r-b.r,a.i-b.i);}
+const double pi=acos(-1.0);
+// NTT
+/*
+struct CD {
+	tf x;
+	CD(tf x):x(x){}
+	CD(){}
+};
+CD operator*(const CD& a, const CD& b){return CD(mulmod(a.x,b.x));}
+CD operator+(const CD& a, const CD& b){return CD(addmod(a.x,b.x));}
+CD operator-(const CD& a, const CD& b){return CD(submod(a.x,b.x));}
+vector<tf> rts(MAXN+9,-1);
+CD root(int n, bool inv){
+	tf r=rts[n]<0?rts[n]=pm(RT,(MOD-1)/n):rts[n];
+	return CD(inv?pm(r,MOD-2):r);
+}
+*/
+CD cp1[MAXN+9],cp2[MAXN+9];
+int R[MAXN+9];
+void dft(CD* a, int n, bool inv){
+	forn(i,n)if(R[i]<i)swap(a[R[i]],a[i]);
+	for(int m=2;m<=n;m*=2){
+		double z=2*pi/m*(inv?-1:1); // FFT
+		CD wi=CD(cos(z),sin(z)); // FFT
+		// CD wi=root(m,inv); // NTT
+		for(int j=0;j<n;j+=m){
+			CD w(1);
+			for(int k=j,k2=j+m/2;k2<j+m;k++,k2++){
+				CD u=a[k];CD v=a[k2]*w;a[k]=u+v;a[k2]=u-v;w=w*wi;
+			}
+		}
+	}
+	if(inv)forn(i,n)a[i]/=n; // FFT
+	//if(inv){ // NTT
+	//	CD z(pm(n,MOD-2)); // pm: modular exponentiation
+	//	forsn(i,0,n)a[i]=a[i]*z;
+	//}
+}
+poly multiply(poly& p1, poly& p2){
+	int n=p1.size()+p2.size()+1;
+	int m=1,cnt=0;
+	while(m<=n)m+=m,cnt++;
+	forn(i,m){R[i]=0;forn(j,cnt)R[i]=(R[i]<<1)|((i>>j)&1);}
+	forn(i,m)cp1[i]=0,cp2[i]=0;
+	forn(i,p1.size())cp1[i]=p1[i];
+	forn(i,p2.size())cp2[i]=p2[i];
+	dft(cp1,m,false);dft(cp2,m,false);
+	forn(i,m)cp1[i]=cp1[i]*cp2[i];
+	dft(cp1,m,true);
+	poly res;
+	n-=2;
+	forn(i,n)res.pb((tf)floor(cp1[i].real()+0.5)); // FFT
+	//fore(i,0,n)res.pb(cp1[i].x); // NTT
+	return res;
+}
+\end{code}
+\subsection{Berlekamp-Massey *}
+\begin{code}
+vi BM(vi x){
+	vi ls,cur;int lf,ld;
+    forn(i,x.size()){
+		ll t=0;
+        forn(j,cur.size())t=(t+x[i-j-1]*(ll)cur[j])%MOD;
+		if((t-x[i])%MOD==0)continue;
+        if(!cur.size()){cur.resize(i+1);lf=i;ld=(t-x[i])%MOD;continue;}
+		ll k=-(x[i]-t)*modPow(ld,MOD-2)%MOD;
+		vi c(i-lf-1);c.pb(k);
+        forn(j,ls.size())c.pb(-ls[j]*k%MOD);
+        if(c.size()<cur.size())c.resize(cur.size());
+        forn(j,cur.size())c[j]=(c[j]+cur[j])%MOD;
+        if(i-lf+ls.size()>=cur.size())ls=cur,lf=i,ld=(t-x[i])%MOD;
+		cur=c;
+	}
+    forn(i,cur.size())cur[i]=(cur[i]%MOD+MOD)%MOD;
+	return cur;
+}
+\end{code}
+\subsection{Pollard-Rho *}
+\begin{code}
+ll gcd(ll a, ll b){return a?gcd(b%a,a):b;}
+ll mulmod(ll a, ll b, ll m) {
+	ll r=a*b-(ll)((long double)a*b/m+.5)*m;
+	return r<0?r+m:r;
+}
+ll expmod(ll b, ll e, ll m){
+	if(!e)return 1;
+	ll q=expmod(b,e/2,m);q=mulmod(q,q,m);
+	return e&1?mulmod(b,q,m):q;
+}
+bool is_prime_prob(ll n, int a){
+	if(n==a)return true;
+	ll s=0,d=n-1;
+	while(d%2==0)s++,d/=2;
+	ll x=expmod(a,d,n);
+	if((x==1)||(x+1==n))return true;
+	form(i,s-1){
+		x=mulmod(x,x,n);
+		if(x==1)return false;
+		if(x+1==n)return true;
+	}
+	return false;
+}
+bool rabin(ll n){ // true iff n is prime
+	if(n==1)return false;
+	int ar[]={2,3,5,7,11,13,17,19,23};
+	forn(i,9)if(!is_prime_prob(n,ar[i]))return false;
+	return true;
+}
+ll rho(ll n){
+	if(!(n&1))return 2;
+	ll x=2,y=2,d=1;
+	ll c=rand()%n+1;
+	while(d==1){
+		x=(mulmod(x,x,n)+c)%n;
+		y=(mulmod(y,y,n)+c)%n;
+		y=(mulmod(y,y,n)+c)%n;
+		if(x>=y)d=gcd(x-y,n);
+		else d=gcd(y-x,n);
+	}
+	return d==n?rho(n):d;
+}
+void fact(ll n, map<ll,int>& f){ //O (lg n)^3
+	if(n==1)return;
+	if(rabin(n)){f[n]++;return;}
+	ll q=rho(n);fact(q,f);fact(n/q,f);
+}
+\end{code}
+\subsection{Simplex *}
+\section{Strings}
+\subsection{Hash}
+\begin{code}
+struct Hash {
+	int P=1777771, MOD[2], PI[2];
+	vector<int> h[2],pi[2];
+	Hash(string& s){
+		MOD[0]=999727999; MOD[1]=1070777777;
+		PI[0]=325255434; PI[1]=10018302;
+		forn(k,2) h[k].resize(s.size()+1), pi[k].resize(s.size()+1);
+		forn(k,2){
+			h[k][0]=0;pi[k][0]=1;
+			ll p=1;
+			forsn(i,1,s.size()+1){
+				h[k][i]=(h[k][i-1]+p*s[i-1])%MOD[k];
+				pi[k][i]=(1LL*pi[k][i-1]*PI[k])%MOD[k];
+				p=(p*P)%MOD[k];
+			}
+		}
+	}
+   	 // get hash of range [s, e] indexed from 0 to n - 1
+	ll get(int s, int e){
+	    	e++;
+		ll h0=(h[0][e]-h[0][s]+MOD[0])%MOD[0];
+		h0=(1LL*h0*pi[0][s])%MOD[0];
+		ll h1=(h[1][e]-h[1][s]+MOD[1])%MOD[1];
+		h1=(1LL*h1*pi[1][s])%MOD[1];
+		return (h0<<32)|h1;
+	}
+};
+//this hash is slower but more accurate
+#define bint __int128
+struct Hash {
+	bint MOD=212345678987654321LL,P=1777771,PI=106955741089659571LL;
+	vector<bint> h,pi;
+	Hash(string& s){
+		assert((P*PI)%MOD==1);
+		h.resize(s.size()+1);pi.resize(s.size()+1);
+		h[0]=0;pi[0]=1;
+		bint p=1;
+		forsn(i,1,s.size()+1){
+			h[i]=(h[i-1]+p*s[i-1])%MOD;
+			pi[i]=(pi[i-1]*PI)%MOD;
+			p=(p*P)%MOD;
+		}
+	}
+	//get hash of range [s, e] indexed from 0 to n - 1
+	ll get(int s, int e){
+		e++;
+		return (((h[e]-h[s]+MOD)%MOD)*pi[s])%MOD;
+	}
+};
+\end{code}
+\subsection{Suffix Array *}
+\subsection{Aho-Corasick *}
+\subsection{Manacher's Algorithm}
+\begin{code}
+int d1[1000000];//d1[i] = max odd palindrome centered on i
+int d2[1000000];//d2[i] = max even palindrome centered on i
+//s  aabbaacaabbaa
+//d1 1111117111111
+//d2 0103010010301
+void manacher(string& s){
+	int l=0,r=-1,n=s.size();
+	forn(i,n){
+		int k=i>r?1:min(d1[l+r-i],r-i);
+		while(i+k<n&&i-k>=0&&s[i+k]==s[i-k])k++;
+		d1[i]=k--;
+		if(i+k>r)l=i-k,r=i+k;
+	}
+	l=0;r=-1;
+	forn(i,n){
+		int k=i>r?0:min(d2[l+r-i+1],r-i+1);k++;
+		while(i+k<=n&&i-k>=0&&s[i+k-1]==s[i-k])k++;
+		d2[i]=--k;
+		if(i+k-1>r)l=i-k,r=i+k-1;
+	}
+}
+\end{code}
+\section{Flujos}
+\subsection{Dinic? No era Dinitz??}
+Runs in $O(EV^2)$
+\begin{code}
+struct edge { int v, cap, inv, flow; };
+struct network {
+  int n, s, t;
+  vector<int> lvl;
+  vector<vector<edge>> g;
+  network(int n) : n(n), lvl(n), g(n) {}
+  void add_edge(int u, int v, int c) {
+    g[u].push_back({v, c, g[v].size(), 0});
+    g[v].push_back({u, 0, g[u].size()-1,c});
+    // The following line is for undirected graphs
+    // g[v].push_back({u, c, g[u].size()-1, 0});
+  }
+  bool bfs() {
+    fill(lvl.begin(), lvl.end(), -1);
+    queue<int> q;
+    lvl[s] = 0;
+    for(q.push(s); q.size(); q.pop()) {
+      int u = q.front();
+      for(auto &e : g[u]) {
+        if(e.cap > 0 && lvl[e.v] == -1) {
+          lvl[e.v] = lvl[u]+1;
+          q.push(e.v);
+        }
+      }
+    }
+    return lvl[t] != -1;
+  }
+  int dfs(int u, int nf) {
+    if(u == t) return nf;
+    int res = 0;
+    for(auto &e : g[u]) {
+      if(e.cap > 0 && lvl[e.v] == lvl[u]+1) {
+        int tf = dfs(e.v, min(nf, e.cap));
+        res += tf; nf -= tf; e.cap -= tf;
+        g[e.v][e.inv].cap += tf;
+        g[e.v][e.inv].flow -= tf;
+        e.flow += tf;
+        if(nf == 0) return res;
+      }
+    }
+    if(!res) lvl[u] = -1;
+    return res;
+  }
+  int max_flow(int so, int si, int res = 0) {
+    s = so; t = si;
+    while(bfs()) res += dfs(s, INT_MAX);
+    return res;
+  }
+  //first find max flow
+  vector<ii> minCut() {
+    bfs();
+    vector<ii> mc;
+    forn(i, n) {
+        if(lvl[i] == -1) continue;
+        for(auto &e : g[i]) {
+            if(lvl[e.v] == -1) {
+                mc.pb({i, e.v});
+            }
+        }
+    }
+    return mc;
+  }
+};
+\end{code}
+\subsection{Hungarian Matching *}
+Runs in $O(V^3)$ \\
+Algorithm for Min cost max flow in bipartite graph
+\begin{code}
+typedef int type;
+struct matching_weighted {
+  int l, r; //n m
+  vector<vector<type>> c;
+  matching_weighted(int l, int r) : l(l), r(r), c(l, vector<type>(r)) {
+    assert(l <= r);
+  }
+  void add_edge(int a, int b, type cost) { c[a][b] = cost; }
+  type matching() {
+    vector<type> v(r), d(r); // v: potential
+    vector<int> ml(l, -1), mr(r, -1); // matching pairs
+    vector<int> idx(r), prev(r);
+    iota(idx.begin(), idx.end(), 0);
+    auto residue = [&](int i, int j) { return c[i][j]-v[j]; };
+    for(int f = 0; f < l; ++f) {
+      for(int j = 0; j < r; ++j) {
+        d[j] = residue(f, j);
+        prev[j] = f;
+      }
+      type w;
+      int j, l;
+      for (int s = 0, t = 0;;) {
+        if(s == t) {
+          l = s;
+          w = d[idx[t++]];
+          for(int k = t; k < r; ++k) {
+            j = idx[k];
+            type h = d[j];
+            if (h <= w) {
+              if (h < w) t = s, w = h;
+              idx[k] = idx[t];
+              idx[t++] = j;
+            }
+          }
+          for (int k = s; k < t; ++k) {
+            j = idx[k];
+            if (mr[j] < 0) goto aug;
+          }
+        }
+        int q = idx[s++], i = mr[q];
+        for (int k = t; k < r; ++k) {
+          j = idx[k];
+          type h = residue(i, j) - residue(i, q) + w;
+          if (h < d[j]) {
+            d[j] = h;
+            prev[j] = i;
+            if(h == w) {
+              if(mr[j] < 0) goto aug;
+              idx[k] = idx[t];
+              idx[t++] = j;
+            }
+          }
+        }
+      }
+      aug: for (int k = 0; k < l; ++k)
+        v[ idx[k] ] += d[ idx[k] ] - w;
+      int i;
+      do {
+        mr[j] = i = prev[j];
+        swap(j, ml[i]);
+      } while (i != f);
+    }
+    type opt = 0;
+    for (int i = 0; i < l; ++i)
+      opt += c[i][ml[i]]; // (i, ml[i]) is a solution
+    return opt;
+  }
+};
+\end{code}
+\subsection{mcmf *}
+//TODO: add tested code of mcmf
+\subsection{Hopcroft Karp Karzanov (HKK) *}
+Max matching in bipartite graph
+Runs in $O(E\sqrt{V})$
+\begin{code}
+\end{code}
+\section{Locuras}
+\subsection{Euler Circuit}
+Runs in $O(E)$\\
+Check si hay circuito euleriano primero, si hay camino agregar eje entre nodos de grado impar \\
+\begin{code}
+//the graph shoud store edge as the second parameter of a pair
+bool changeStart = false;
+int start = 0;
+deque<int> eulerCircuit;
+bool usedEdges[200005];
+ 
+void changeCircuitStart(int s) {
+    eulerCircuit.pop_back();
+    while(eulerCircuit.back() != s) {
+        eulerCircuit.pf(eulerCircuit.back());
+        eulerCircuit.pop_back();
+    }
+    eulerCircuit.pf(s);
+}
+//in case we had to add an edge between odd degree vertices
+void circuitToPath(int e) {
+    eulerCircuit.pop_back();
+    while(eulerCircuit.back() != e) {
+        eulerCircuit.pf(eulerCircuit.back());
+        eulerCircuit.pop_back();
+    }
+}
+void findCircuit(int u) {
+    for(auto p : g[u]) {
+        int v = p.F;
+        int id = p.S;
+        if(!usedEdges[id]) {
+            if(changeStart) {
+                changeStart = false;
+                changeCircuitStart(u); start = u;
+            }
+            usedEdges[id] = true;
+            eulerCircuit.pb(v);
+            if(v == start) {
+                if(u != v)  {
+                    changeStart = true;
+                }
+            }
+            else {
+                findCircuit(v);   
+            }
+        }
+    }
+    // circuit is at eulerCircuit
+    // for euler path changePath to start then use circuitToPath with end
+}
+\end{code}
+\subsection{Chu Liu *}
+Find MST on directed graph
+Runs in $O(nm)$
+\subsection{Edmond's Blossom *}
+\subsection{Dynamic Connectivity *}
+\subsection{SCC y 2sat}
+\begin{code}
+// MAXN: max number of nodes or 2 * max number of variables (2SAT)
+bool truth[MAXN]; // truth[cmp[i]]=value of variable i (2SAT)
+int nvar;int neg(int x){return MAXN-1-x;} // (2SAT)
+vector<int> g[MAXN];
+int n,lw[MAXN],idx[MAXN],qidx,cmp[MAXN],qcmp;
+stack<int> st;
+void tjn(int u){
+	lw[u]=idx[u]=++qidx;
+	st.push(u);cmp[u]=-2;
+	for(int v:g[u]){
+		if(!idx[v]||cmp[v]==-2){
+			if(!idx[v]) tjn(v);
+			lw[u]=min(lw[u],lw[v]);
+		}
+	}
+	if(lw[u]==idx[u]){
+		int x,l=-1;
+		do{x=st.top();st.pop();cmp[x]=qcmp;if(min(x,neg(x))<nvar)l=x;}
+		while(x!=u);
+		if(l!=-1)truth[qcmp]=(cmp[neg(l)]<0); // (2SAT)
+		qcmp++;
+	}
+}
+void scc(){
+	memset(idx,0,sizeof(idx));qidx=0;
+	memset(cmp,-1,sizeof(cmp));qcmp=0;
+	forn(i,n)if(!idx[i])tjn(i);
+}
+// Only for 2SAT:
+void addor(int a, int b){g[neg(a)].pb(b);g[neg(b)].pb(a);}
+bool satisf(int _nvar){
+	nvar=_nvar;n=MAXN;scc();
+	forn(i,nvar)if(cmp[i]==cmp[neg(i)])return false;
+	return true;
+}
+\end{code}
+\subsection{Cliques *}
+\section{No me gustaban los que eran de Geometr\'ia}
+\subsection{Cross and Dot product}
+\begin{code}
+//returns orientation with respect to 0; 
+//< 0 -> b is to the left of a
+//> 0 -> b is to the right of a
+//==0 -> b is colinear with a
+//also returns area of paralelogram form by vectors
+ll cross(ii a, ii b) {
+    return a.F * b.S - a.S * b.F;
+}
+ll dot(ii a, ii b) {
+    return a.F * b.F + a.S * b.S;
+}
+\end{code}
+\subsection{Point in Poly}
+\begin{code}
+//TODO implement cross product
+bool pointInLine(ii a, ii s, ii ed) {
+    ii l = ii(s.F - a.F, s.S - a.S);
+    ii r = ii(ed.F - a.F, ed.S - a.S);
+    if(cross(l, r) == 0 and min(s.F, ed.F) <= a.F and a.F <= max(s.F, ed.F)
+        and min(s.S, ed.S) <= a.S and a.S <= max(s.S, ed.S)) 
+        return true;
+    return false;
+}
+//0 -> outside, 1 -> inside, 2 -> boundary
+int insidePoly(vector<ii> poly, ii point) {
+    poly.pb(poly[0]);
+    int cont = 0;
+    forn(i, poly.size() - 1) {
+        if(pointInLine(point, poly[i], poly[i + 1])) return 2;
+        if(poly[i].F <= point.F and point.F < poly[i + 1].F) {
+            ii l = ii(poly[i].F - point.F, poly[i].S - point.S);
+            ii r = ii(poly[i + 1].F - point.F, poly[i + 1].S - point.S);
+            if(cross(l, r) < 0) cont++;
+        }
+        else if(poly[i + 1].F <= point.F and point.F < poly[i].F) {
+            ii r = ii(poly[i].F - point.F, poly[i].S - point.S);
+            ii l = ii(poly[i + 1].F - point.F, poly[i + 1].S - point.S);
+            if(cross(l, r) < 0) cont++;
+        }
+    }
+    if(cont%2 == 0) return 0;
+    return 1;
+}
+\end{code}
+\subsection{Min Euclid Dist}
+\begin{code}
+ll distSqrd(ii a, ii b) {
+    return (ll)((a.F - b.F) * (ll)(a.F - b.F)) + (ll)((a.S - b.S) * (ll)(a.S - b.S));
+} 
+//return dist * dist, get sqrt for real dist
+ll minEuclidDist(vector<ii> p) {
+    sort(all(p));
+    set<ii> s;
+    ll minDistSqr = 8000000000000000001;
+    ll minDistP1 = sqrt(minDistSqr) + 1;
+    int l = 0;
+    forn(i, p.size()) {
+        auto it = s.lower_bound(mp((ll)p[i].S - minDistP1, 0LL));
+        while(it != s.end() and it->F <= p[i].S + minDistP1) {
+            ii pe = (*it);
+            swap(pe.F, pe.S);
+            ll nd = distSqrd(p[i], pe);
+            if(nd < minDistSqr) {
+                minDistSqr = nd;
+                minDistP1 = sqrt(minDistSqr);
+            }
+            it++;
+        }
+        s.insert(mp(p[i].S, p[i].F));
+        while(l < i) {
+            if(abso(p[i].F - p[l].F) > minDistP1) {
+                s.erase(mp(p[l].S, p[l].F));
+                l++;
+            }
+            else break;
+        }
+    }
+    return minDistSqr;
+}
+\end{code}
+\subsection{Segment intersection}
+\begin{code}
+ii toVect(ii a, ii b) {
+    return{b.F - a.F, b.S - a.S};
+} 
+bool segmentIntersection(ii a, ii b, ii c, ii d){
+    ll v1 = cross(toVect(c, a), toVect(c, b));
+    ll v2 = cross(toVect(d, a), toVect(d, b));
+    if((v1 < 0 and v2 < 0) or (v1 > 0 and v2 > 0)) {
+        return false;
+    }
+    if(v1 == 0 and v2 == 0) {
+        if((min(a.F, b.F) <= c.F and c.F <= max(a.F, b.F)) and
+            (min(a.S, b.S) <= c.S and c.S <= max(a.S, b.S))) {
+                return true;
+            }
+        if((min(a.x, b.x) <= d.x and d.x <= max(a.x, b.x)) and
+            (min(a.y, b.y) <= d.y and d.y <= max(a.y, b.y))) {
+                return true;
+            }
+        if((min(c.x, d.x) <= a.x and a.x <= max(c.x, d.x)) and
+            (min(c.y, d.y) <= a.y and a.y <= max(c.y, d.y))) {
+                return true;
+            }
+        if((min(c.x, d.x) <= b.x and b.x <= max(c.x, d.x)) and
+            (min(c.y, d.y) <= b.y and b.y <= max(c.y, d.y))) {
+                return true;
+            }
+        return false;
+    }
+    
+    v1 = cross(toVect(a, c), toVect(a, d));
+    v2 = cross(toVect(b, c), toVect(b, d));
+    
+    if((v1 < 0 and v2 < 0) or (v1 > 0 and v2 > 0)) {
+        return false;
+    }
+    return true;
+}
+\end{code}
+\subsection{Monte Carlo *}
+\section{Estaba entre el Greedy y la DP}
+\subsection{Chull Trick}
+\subsection{D\&C}
+\subsection{Knuth's}
+\section{Detalles}
+\subsection{int 128}
+\begin{code}
+__int128 read128(){
+	__int128 x = 0, f = 1;
+	char ch = getchar();
+	while(ch < '0' or ch > '9'){
+		if(ch == '-') f = -1;
+		ch = getchar();
+	}
+	while(ch >= '0' && ch <= '9'){
+		x = x * 10 + ch - '0';
+		ch = getchar();
+	}
+	return x * f;
+}
+
+void print(__int128 x){
+	if(x < 0){
+		putchar('-');
+		x = -x;
+	}
+	if(x > 9) print(x/10);
+	putchar(x%10 + '0');
+}
+
+bool cmp(__int128 x, __int128 y){
+	return x > y;
+}
+\end{code}
+\subsection{Evitar colisiones en unordered\_map/set}
+\begin{code}
+struct custom_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+ 
+    size_t operator()(uint64_t x) const {
+        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + FIXED_RANDOM);
+    }
+};
+//unordered_map<int, int, custom_hash> m
+\end{code}
+\subsection{Matrix}
+\begin{code}
+class Matrix{
+public:
+    int r, c;
+    vector<vi> m;
+    Matrix(int rows, int cols) : r(rows), c(cols){
+        m = vector<vi>(r, vi(c, 0));
+    }
+    Matrix(int n) : Matrix(n, n){
+        forn(i, r) m[i][i] = 1; 
+    }
+    Matrix(vector<vi> mt) : Matrix(mt.size(), mt[0].size()) {
+        m = mt;
+    }
+    Matrix operator * (Matrix b) {
+        Matrix res(r, b.c);
+        forn(i, r) {
+            forn(j, b.c) {
+                forn(k, c) {
+                    res.m[i][j] = (res.m[i][j] + (m[i][k] * b.m[k][j])%M)%M;
+                }
+            }
+        }
+        return res;
+    }
+};
+\end{code}
+\section{El Himno nacional}
+Me encontraba en dif\'icil situaci\'on\\
+En una prueba muy dif\'icil de mi vida \\
+Estaba entre el Greedy y la DP \\
+Mirando el F que no me sal\'ia  \\
+Yo no queria una prueba normal \\
+No me gustaban los que eran de geometr\'ia \\
+El c\'odigo del C no me servia \\
+Para dos rectas encontrar su intersecci\'on \\
+Y tuve una revelaci\'on \\
+Se calcular la geometr\'ia \\
+Voy a evitar el overflow \\
+\textit{Tristemente, este verso se perdio en el tiempo} \\
+\\
+Porque yo \\
+No quiero debuggear \\
+No quiero ya testear \\
+No quiero submitear \\
+Quiero ganarme el accepted enseguida \\
+\textit{Tristemente, este verso se perdio en el tiempo} \\
+\\
+En la cabeza tenia arapos de mi viejo \\
+Que resonaban como rulo de tambor \\
+Vos, mejor que debugges \\
+Mejor que programes \\
+Y que obtengase 10 \\
+\\
+Ya me canse de que no metas los problemas \\
+Voy a codearme la DP de las monedas \\
+Vos mejor que debugges \\
+Mejor que programes \\
+Y que obtengase 10 \\
+Ya me canse de ser tu fuente de algoritmos \\
+\textit{El resto de la canci\'on se perdio en el tiempo} \\
+\\
+\\
+\textit{Gracias TCA por todo lo que me enseñaste estos años} \\
+\end{document}
+
