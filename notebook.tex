@@ -55,6 +55,16 @@
 }
 
 \newcommand{\comb}[2]{{}_{#1}\mathrm{C}_{#2}}
+\newcommand{\threepartdef}[6]
+{
+	\left\{
+		\begin{array}{lll}
+			#1 & \mbox{if } #2 \\
+			#3 & \mbox{if } #4 \\
+			#5 & \mbox{if } #6
+		\end{array}
+	\right.
+}
 
 \begin{document}
 
@@ -66,6 +76,7 @@
 Para los randoms agregar al inicio del main
 \begin{code}
 srand ( unsigned ( std::time(0) ) ); //cambiar la semilla si WA
+double r = ((double) rand() / (RAND_MAX)); //0 <= r <= 1 
 \end{code}
 \textbf{\#include $<$algorithm$>$ \#include $<$numeric$>$ \\}
 \begin{tabular}{|l|l|l|} \hline
@@ -129,7 +140,7 @@ int main(){
 
 
 \section{Estructuras}
-\subsection{Mo's *}
+\subsection{Mo's}
 \begin{code}
 inline int64_t hilbertOrder(int x, int y, int pow, int rotate) {
     if (pow == 0) return 0;
@@ -287,7 +298,7 @@ ll query(int x, int y, SegTree& rmq){
 // queries on edges: - assign values of edges to "child" node
 //                   - change pos[x] to pos[x]+1 i
 \end{code}
-\subsection{Centroid decomposition *}
+\subsection{Centroid decomposition}
 \begin{code}
 vi s;
 vi g[200001];
@@ -413,8 +424,25 @@ public:
 };
 \end{code}
 \section{Secci\'on de Andres}
-\subsection{Mobius *}
-Add Multiplicative functions
+\subsection{Mobius}
+Count numbers coprime to n; $\varphi(n)$\\
+if n is prime then $\varphi(n) = n - 1$\\
+if n is a power of a prime then $\varphi(p^k) = p^k - p^(k-1)$\\
+\\
+Count divisors of n; $\sigma(n)$\\
+if n is prime then $\sigma(n) = 2$\\
+\\
+Mobius function is defined as: \\
+$\mu(n) = \threepartdef
+{1}      {n=1}
+{0}      {a^2 | n \mbox{ for some } a > 1}
+{(-1)^r} {n \mbox{ has } r \mbox{ distinct prime factors}}$\\
+\\
+These three are multiplicative functions\\
+Then, the mobius invertion is:\\
+if $g(n) = \sum_{d|n} f(d)$ \\
+then $f(n) = \sum_{d|n} \mu(d)g(\frac{n}{d})$
+
 \begin{code}
 //TODO: add multiplicative functions
 //TODO: define MAXN
@@ -423,7 +451,7 @@ void mobius(){
 	fore(i,1,MAXN)if(mu[i])for(int j=i+i;j<MAXN;j+=i)mu[j]-=mu[i];
 }
 \end{code}
-\subsection{Chinese Remainder Theorem *}
+\subsection{Chinese Remainder Theorem}
 \begin{code}
 ll gcd(ll a, ll b){while(b){ll t=a%b;a=b;b=t;}return a;}
 pair<ll,ll> extendedEuclid (ll a, ll b){ //a * x + b * y = gcd(a,b)
@@ -616,7 +644,7 @@ $\sigma_1(9896040)$ = 44323200 ; $\sigma_1(9959040)$ = 44553600 ; $\sigma_1(9979
 
 max signed tint = 9.223.372.036.854.775.807 \\
 max unsigned tint = 18.446.744.073.709.551.615
-\subsection{FFT (Final Fourier Tactics)*}
+\subsection{FFT (Final Fourier Tactics)}
 TODO: add operations
 \begin{code}
 // MAXN must be power of 2 !!
@@ -694,7 +722,7 @@ poly multiply(poly& p1, poly& p2){
 	return res;
 }
 \end{code}
-\subsection{Berlekamp-Massey *}
+\subsection{Berlekamp-Massey}
 \begin{code}
 vi BM(vi x){
 	vi ls,cur;int lf,ld;
@@ -715,7 +743,7 @@ vi BM(vi x){
 	return cur;
 }
 \end{code}
-\subsection{Pollard-Rho *}
+\subsection{Pollard-Rho}
 \begin{code}
 ll gcd(ll a, ll b){return a?gcd(b%a,a):b;}
 ll mulmod(ll a, ll b, ll m) {
@@ -765,7 +793,60 @@ void fact(ll n, map<ll,int>& f){ //O (lg n)^3
 	ll q=rho(n);fact(q,f);fact(n/q,f);
 }
 \end{code}
-\subsection{Simplex *}
+\subsection{Simplex}
+\begin{code}
+// TODO: define EPS
+vector<int> X,Y;
+vector<vector<double> > A;
+vector<double> b,c;
+double z;
+int n,m;
+void pivot(int x,int y){
+	swap(X[y],Y[x]);
+	b[x]/=A[x][y];
+	forn(i,m)if(i!=y)A[x][i]/=A[x][y];
+	A[x][y]=1/A[x][y];
+	forn(i,n)if(i!=x&&abs(A[i][y])>EPS){
+		b[i]-=A[i][y]*b[x];
+		forn(j,m)if(j!=y)A[i][j]-=A[i][y]*A[x][j];
+		A[i][y]=-A[i][y]*A[x][y];
+	}
+	z+=c[y]*b[x];
+	forn(i,m)if(i!=y)c[i]-=c[y]*A[x][i];
+	c[y]=-c[y]*A[x][y];
+}
+pair<double,vector<double> > simplex( // maximize c^T x s.t. Ax<=b, x>=0
+		vector<vector<double> > _A, vector<double> _b, vector<double> _c){
+	// returns pair (maximum value, solution vector)
+	A=_A;b=_b;c=_c;
+	n=b.size();m=c.size();z=0.;
+	X=vector<int>(m);Y=vector<int>(n);
+	forn(i,m)X[i]=i;
+	forn(i,n)Y[i]=i+m;
+	while(1){
+		int x=-1,y=-1;
+		double mn=-EPS;
+		forn(i,n)if(b[i]<mn)mn=b[i],x=i;
+		if(x<0)break;
+		forn(i,m)if(A[x][i]<-EPS){y=i;break;}
+		assert(y>=0); // no solution to Ax<=b
+		pivot(x,y);
+	}
+	while(1){
+		double mx=EPS;
+		int x=-1,y=-1;
+		forn(i,m)if(c[i]>mx)mx=c[i],y=i;
+		if(y<0)break;
+		double mn=1e200;
+		forn(i,n)if(A[i][y]>EPS&&b[i]/A[i][y]<mn)mn=b[i]/A[i][y],x=i;
+		assert(x>=0); // c^T x is unbounded
+		pivot(x,y);
+	}
+	vector<double> r(m);
+	forn(i,n)if(Y[i]<m)r[Y[i]]=b[i];
+	return {z,r};
+}
+\end{code}
 \section{Strings}
 \subsection{Hash}
 \begin{code}
@@ -819,8 +900,44 @@ struct Hash {
 	}
 };
 \end{code}
-\subsection{Suffix Array *}
-\subsection{Aho-Corasick *}
+\subsection{Aho-Corasick}
+\begin{code}
+struct vertex {
+	map<char,int> next,go;
+	int p,link;
+	char pch;
+	vector<int> leaf;
+	vertex(int p=-1, char pch=-1):p(p),pch(pch),link(-1){}
+};
+vector<vertex> t;
+void aho_init(){ //do not forget!!
+	t.clear();t.pb(vertex());
+}
+void add_string(string s, int id){
+	int v=0;
+	for(char c:s){
+		if(!t[v].next.count(c)){
+			t[v].next[c]=t.size();
+			t.pb(vertex(v,c));
+		}
+		v=t[v].next[c];
+	}
+	t[v].leaf.pb(id);
+}
+int go(int v, char c);
+int get_link(int v){
+	if(t[v].link<0)
+		if(!v||!t[v].p)t[v].link=0;
+		else t[v].link=go(get_link(t[v].p),t[v].pch);
+	return t[v].link;
+}
+int go(int v, char c){
+	if(!t[v].go.count(c))
+		if(t[v].next.count(c))t[v].go[c]=t[v].next[c];
+		else t[v].go[c]=v==0?0:go(get_link(v),c);
+	return t[v].go[c];
+}
+\end{code}
 \subsection{Manacher's Algorithm}
 \begin{code}
 int d1[1000000];//d1[i] = max odd palindrome centered on i
@@ -913,7 +1030,7 @@ struct network {
   }
 };
 \end{code}
-\subsection{Hungarian Matching *}
+\subsection{Hungarian Matching}
 Runs in $O(V^3)$ \\
 Algorithm for Min cost max flow in bipartite graph
 \begin{code}
@@ -986,12 +1103,99 @@ struct matching_weighted {
   }
 };
 \end{code}
-\subsection{mcmf *}
-//TODO: add tested code of mcmf
-\subsection{Hopcroft Karp Karzanov (HKK) *}
+\subsection{mcmf}
+\begin{code}
+typedef ll tf;
+typedef ll tc;
+const tf INFFLOW=1e9;
+const tc INFCOST=1e9;
+struct MCF{
+	int n;
+	vector<tc> prio, pot; vector<tf> curflow; vector<int> prevedge,prevnode;
+	priority_queue<pair<tc, int>, vector<pair<tc, int>>, greater<pair<tc, int>>> q;
+	struct edge{int to, rev; tf f, cap; tc cost;};
+	vector<vector<edge>> g;
+	MCF(int n):n(n),prio(n),curflow(n),prevedge(n),prevnode(n),pot(n),g(n){}
+	void add_edge(int s, int t, tf cap, tc cost) {
+		g[s].pb((edge){t,SZ(g[t]),0,cap,cost});
+		g[t].pb((edge){s,SZ(g[s])-1,0,0,-cost});
+	}
+	pair<tf,tc> get_flow(int s, int t) {
+		tf flow=0; tc flowcost=0;
+		while(1){
+			q.push({0, s});
+			fill(ALL(prio),INFCOST); 
+			prio[s]=0; curflow[s]=INFFLOW;
+			while(!q.empty()) {
+				auto cur=q.top();
+				tc d=cur.F;
+				int u=cur.S;
+				q.pop();
+				if(d!=prio[u]) continue;
+				for(int i=0; i<SZ(g[u]); ++i) {
+					edge &e=g[u][i];
+					int v=e.to;
+					if(e.cap<=e.f) continue;
+					tc nprio=prio[u]+e.cost+pot[u]-pot[v];
+					if(prio[v]>nprio) {
+						prio[v]=nprio;
+						q.push({nprio, v});
+						prevnode[v]=u; prevedge[v]=i;
+						curflow[v]=min(curflow[u], e.cap-e.f);
+					}
+				}
+			}
+			if(prio[t]==INFCOST) break;
+			forn(i,n) pot[i]+=prio[i];
+			tf df=min(curflow[t], INFFLOW-flow);
+			flow+=df;
+			for(int v=t; v!=s; v=prevnode[v]) {
+				edge &e=g[prevnode[v]][prevedge[v]];
+				e.f+=df; g[v][e.rev].f-=df;
+				flowcost+=df*e.cost;
+			}
+		}
+		return {flow,flowcost};
+	}
+};
+\end{code}
+\subsection{Hopcroft Karp Karzanov (HKK)}
 Max matching in bipartite graph
 Runs in $O(E\sqrt{V})$
 \begin{code}
+vector<int> g[MAXN]; // [0,n)->[0,m)
+int n,m;
+int mt[MAXN],mt2[MAXN],ds[MAXN];
+bool bfs(){
+	queue<int> q;
+	memset(ds,-1,sizeof(ds));
+	forn(i,n)if(mt2[i]<0)ds[i]=0,q.push(i);
+	bool r=false;
+	while(!q.empty()){
+		int x=q.front();q.pop();
+		for(int y:g[x]){
+			if(mt[y]>=0&&ds[mt[y]]<0)ds[mt[y]]=ds[x]+1,q.push(mt[y]);
+			else if(mt[y]<0)r=true;
+		}
+	}
+	return r;
+}
+bool dfs(int x){
+	for(int y:g[x])if(mt[y]<0||ds[mt[y]]==ds[x]+1&&dfs(mt[y])){
+		mt[y]=x;mt2[x]=y;
+		return true;
+	}
+	ds[x]=1<<30;
+	return false;
+}
+int mm(){
+	int r=0;
+	memset(mt,-1,sizeof(mt));memset(mt2,-1,sizeof(mt2));
+	while(bfs()){
+		forn(i,n)if(mt2[i]<0)r+=dfs(i);
+	}
+	return r;
+}
 \end{code}
 \section{Locuras}
 \subsection{Euler Circuit}
@@ -1045,11 +1249,131 @@ void findCircuit(int u) {
     // for euler path changePath to start then use circuitToPath with end
 }
 \end{code}
-\subsection{Chu Liu *}
+\subsection{Chu Liu}
 Find MST on directed graph
 Runs in $O(nm)$
-\subsection{Edmond's Blossom *}
-\subsection{Dynamic Connectivity *}
+\begin{code}
+//returns -1 if not possible
+//included i-th edge if take[i]!=0
+typedef int tw; tw INF=1ll<<30;
+struct edge{int u,v,id;tw len;};
+struct ChuLiu{
+	int n; vector<edge> e;
+	vector<int> inc,dec,take,pre,num,id,vis;
+	vector<tw> inw;
+	void add_edge(int x, int y, tw w){
+		inc.pb(0); dec.pb(0); take.pb(0);
+		e.pb({x,y,SZ(e),w});
+	}
+	ChuLiu(int n):n(n),pre(n),num(n),id(n),vis(n),inw(n){}
+	tw doit(int root){
+		auto e2=e;
+		tw ans=0; int eg=SZ(e)-1,pos=SZ(e)-1;
+		while(1){
+			forn(i,n) inw[i]=INF,id[i]=vis[i]=-1;
+			for(auto ed:e2) if(ed.len<inw[ed.v]){
+				inw[ed.v]=ed.len; pre[ed.v]=ed.u;
+				num[ed.v]=ed.id;
+			}
+			inw[root]=0;
+			forn(i,n) if(inw[i]==INF) return -1;
+			int tot=-1;
+			forn(i,n){
+				ans+=inw[i];
+				if(i!=root)take[num[i]]++;
+				int j=i;
+				while(vis[j]!=i&&j!=root&&id[j]<0)vis[j]=i,j=pre[j];
+				if(j!=root&&id[j]<0){
+					id[j]=++tot;
+					for(int k=pre[j];k!=j;k=pre[k]) id[k]=tot;
+				}
+			}
+			if(tot<0)break;
+			forn(i,n) if(id[i]<0)id[i]=++tot;
+			n=tot+1; int j=0;
+			forn(i,SZ(e2)){
+				int v=e2[i].v;
+				e2[j].v=id[e2[i].v];
+				e2[j].u=id[e2[i].u];
+				if(e2[j].v!=e2[j].u){
+					e2[j].len=e2[i].len-inw[v];
+					inc.pb(e2[i].id);
+					dec.pb(num[v]);
+					take.pb(0);
+					e2[j++].id=++pos;
+				}
+			}
+			e2.resize(j);
+			root=id[root];
+		}
+		while(pos>eg){
+			if(take[pos]>0) take[inc[pos]]++, take[dec[pos]]--;
+			pos--;
+		}
+		return ans;
+	}
+};
+\end{code}
+\subsection{Dynamic Connectivity}
+runs ofline
+\begin{code}
+struct UnionFind {
+	int n,comp;
+	vector<int> uf,si,c;
+	UnionFind(int n=0):n(n),comp(n),uf(n),si(n,1){
+		fore(i,0,n)uf[i]=i;}
+	int find(int x){return x==uf[x]?x:find(uf[x]);}
+	bool join(int x, int y){
+		if((x=find(x))==(y=find(y)))return false;
+		if(si[x]<si[y])swap(x,y);
+		si[x]+=si[y];uf[y]=x;comp--;c.pb(y);
+		return true;
+	}
+	int snap(){return c.size();}
+	void rollback(int snap){
+		while(c.size()>snap){
+			int x=c.back();c.pop_back();
+			si[uf[x]]-=si[x];uf[x]=x;comp++;
+		}
+	}
+};
+enum {ADD,DEL,QUERY};
+struct Query {int type,x,y;};
+struct DynCon {
+	vector<Query> q;
+	UnionFind dsu;
+	vector<int> mt;
+	map<pair<int,int>,int> last;
+	DynCon(int n):dsu(n){}
+	void add(int x, int y){
+		if(x>y)swap(x,y);
+		q.pb((Query){ADD,x,y});mt.pb(-1);last[{x,y}]=q.size()-1;
+	}
+	void remove(int x, int y){
+		if(x>y)swap(x,y);
+		q.pb((Query){DEL,x,y});
+		int pr=last[{x,y}];mt[pr]=q.size()-1;mt.pb(pr);
+	}
+	void query(){q.pb((Query){QUERY,-1,-1});mt.pb(-1);}
+	void process(){ // answers all queries in order
+		if(!q.size())return;
+		fore(i,0,q.size())if(q[i].type==ADD&&mt[i]<0)mt[i]=q.size();
+		go(0,q.size());
+	}
+	void go(int s, int e){
+		if(s+1==e){
+			if(q[s].type==QUERY) // answer query using DSU
+				printf("%d\n",dsu.comp);
+			return;
+		}
+		int k=dsu.snap(),m=(s+e)/2;
+		for(int i=e-1;i>=m;--i)if(mt[i]>=0&&mt[i]<s)dsu.join(q[i].x,q[i].y);
+		go(s,m);dsu.rollback(k);
+		for(int i=m-1;i>=s;--i)if(mt[i]>=e)dsu.join(q[i].x,q[i].y);
+		go(m,e);dsu.rollback(k);
+	}
+};
+\end{code}
 \subsection{SCC y 2sat}
 \begin{code}
 // MAXN: max number of nodes or 2 * max number of variables (2SAT)
@@ -1088,7 +1412,6 @@ bool satisf(int _nvar){
 	return true;
 }
 \end{code}
-\subsection{Cliques *}
 \section{No me gustaban los que eran de Geometr\'ia}
 \subsection{Cross and Dot product}
 \begin{code}
@@ -1212,11 +1535,103 @@ bool segmentIntersection(ii a, ii b, ii c, ii d){
     return true;
 }
 \end{code}
-\subsection{Monte Carlo *}
+\subsection{Radial Sort}
+\begin{code}
+struct pt {  // for 3D add z coordinate
+	double x,y;
+	pt(double x, double y):x(x),y(y){}
+	pt(){}
+	double norm2(){return *this**this;}
+	double norm(){return sqrt(norm2());}
+	bool operator==(pt p){return abs(x-p.x)<=EPS&&abs(y-p.y)<=EPS;}
+	pt operator+(pt p){return pt(x+p.x,y+p.y);}
+	pt operator-(pt p){return pt(x-p.x,y-p.y);}
+	pt operator*(double t){return pt(x*t,y*t);}
+	pt operator/(double t){return pt(x/t,y/t);}
+	double operator*(pt p){return x*p.x+y*p.y;}
+//	pt operator^(pt p){ // only for 3D
+//		return pt(y*p.z-z*p.y,z*p.x-x*p.z,x*p.y-y*p.x);}
+	double angle(pt p){ // redefine acos for values out of range
+		return acos(*this*p/(norm()*p.norm()));}
+	pt unit(){return *this/norm();}
+	double operator%(pt p){return x*p.y-y*p.x;}
+	// 2D from now on
+	bool operator<(pt p)const{ // for convex hull
+		return x<p.x-EPS||(abs(x-p.x)<=EPS&&y<p.y-EPS);}
+	bool left(pt p, pt q){ // is it to the left of directed line pq?
+		return (q-p)%(*this-p)>EPS;}
+	pt rot(pt r){return pt(*this%r,*this*r);}
+	pt rot(double a){return rot(pt(sin(a),cos(a)));}
+};
+pt ccw90(1,0);
+pt cw90(-1,0);
+struct Cmp { // IMPORTANT: add const in pt operator -
+	pt r;
+	Cmp(pt r):r(r){}
+	int cuad(const pt &a)const {
+		if(a.x>0&&a.y>=0)return 0;
+		if(a.x<=0&&a.y>0)return 1;
+		if(a.x<0&&a.y<=0)return 2;
+		if(a.x>=0&&a.y<0)return 3;
+		assert(a.x==0&&a.y==0);
+		return -1;
+	}
+	bool cmp(const pt& p1, const pt& p2)const {
+		int c1=cuad(p1),c2=cuad(p2);
+		if(c1==c2)return p1.y*p2.x<p1.x*p2.y;
+		return c1<c2;
+	}
+	bool operator()(const pt& p1, const pt& p2)const {
+		return cmp(p1-r,p2-r);
+	}
+};
+\end{code}
 \section{Estaba entre el Greedy y la DP}
-\subsection{Chull Trick}
-\subsection{D\&C}
-\subsection{Knuth's}
+\subsection{Chull Trick Dynamic}
+Find max/min value on set of lines, allows dynamic insertion.\\
+This implementation finds min, for max insert $-mx - b$, of course the result will be $-res$\\
+Works for dp of the form $mx + b$
+\begin{code}
+typedef ll tc;
+const tc is_query=-(1LL<<62); // special value for query
+struct Line {
+	tc m,b;
+	mutable multiset<Line>::iterator it,end;
+	const Line* succ(multiset<Line>::iterator it) const {
+		return (++it==end? NULL : &*it);}
+	bool operator<(const Line& rhs) const {
+		if(rhs.b!=is_query)return m<rhs.m;
+		const Line *s=succ(it);
+		if(!s)return 0;
+		return b-s->b<(s->m-m)*rhs.m;
+	}
+};
+struct CHT : public multiset<Line> { // for maximum
+	bool bad(iterator y){
+		iterator z=next(y);
+		if(y==begin()){
+			if(z==end())return false;
+			return y->m==z->m&&y->b<=z->b;
+		}
+		iterator x=prev(y);
+		if(z==end())return y->m==x->m&&y->b<=x->b;
+		return (x->b-y->b)*(z->m-y->m)>=(y->b-z->b)*(y->m-x->m);
+	}
+	iterator next(iterator y){return ++y;}
+	iterator prev(iterator y){return --y;}
+	void add(tc m, tc b){
+		iterator y=insert((Line){m,b});
+		y->it=y;y->end=end();
+		if(bad(y)){erase(y);return;}
+		while(next(y)!=end()&&bad(next(y)))erase(next(y));
+		while(y!=begin()&&bad(prev(y)))erase(prev(y));
+	}
+	tc eval(tc x){
+		Line l=*lower_bound((Line){x,is_query});
+		return l.m*x+l.b;
+	}
+};
+\end{code}
 \section{Detalles}
 \subsection{int 128}
 \begin{code}
@@ -1292,6 +1707,7 @@ public:
     }
 };
 \end{code}
+\newpage
 \section{El Himno nacional}
 Me encontraba en dif\'icil situaci\'on\\
 En una prueba muy dif\'icil de mi vida \\
@@ -1329,5 +1745,6 @@ Ya me canse de ser tu fuente de algoritmos \\
 \\
 \\
 \textit{Gracias TCA por todo lo que me enseñaste estos años} \\
+\newpage
 \end{document}
 
