@@ -448,7 +448,7 @@ then $f(n) = \sum_{d|n} \mu(d)g(\frac{n}{d})$
 //TODO: define MAXN
 short mu[MAXN] = {0,1};
 void mobius(){
-	fore(i,1,MAXN)if(mu[i])for(int j=i+i;j<MAXN;j+=i)mu[j]-=mu[i];
+	forsn(i,1,MAXN)if(mu[i])for(int j=i+i;j<MAXN;j+=i)mu[j]-=mu[i];
 }
 \end{code}
 \subsection{Chinese Remainder Theorem}
@@ -718,7 +718,7 @@ poly multiply(poly& p1, poly& p2){
 	poly res;
 	n-=2;
 	forn(i,n)res.pb((tf)floor(cp1[i].real()+0.5)); // FFT
-	//fore(i,0,n)res.pb(cp1[i].x); // NTT
+	//forn(i,n)res.pb(cp1[i].x); // NTT
 	return res;
 }
 \end{code}
@@ -1321,7 +1321,7 @@ struct UnionFind {
 	int n,comp;
 	vector<int> uf,si,c;
 	UnionFind(int n=0):n(n),comp(n),uf(n),si(n,1){
-		fore(i,0,n)uf[i]=i;}
+		forn(i,n)uf[i]=i;}
 	int find(int x){return x==uf[x]?x:find(uf[x]);}
 	bool join(int x, int y){
 		if((x=find(x))==(y=find(y)))return false;
@@ -1357,7 +1357,7 @@ struct DynCon {
 	void query(){q.pb((Query){QUERY,-1,-1});mt.pb(-1);}
 	void process(){ // answers all queries in order
 		if(!q.size())return;
-		fore(i,0,q.size())if(q[i].type==ADD&&mt[i]<0)mt[i]=q.size();
+		forn(i,q.size())if(q[i].type==ADD&&mt[i]<0)mt[i]=q.size();
 		go(0,q.size());
 	}
 	void go(int s, int e){
@@ -1589,7 +1589,7 @@ struct Cmp { // IMPORTANT: add const in pt operator -
 \section{Estaba entre el Greedy y la DP}
 \subsection{Chull Trick Dynamic}
 Find max/min value on set of lines, allows dynamic insertion.\\
-This implementation finds min, for max insert $-mx - b$, of course the result will be $-res$\\
+This implementation finds max, for min insert $-mx - b$, of course the result of eval will be $-res$\\
 Works for dp of the form $mx + b$
 \begin{code}
 typedef ll tc;
