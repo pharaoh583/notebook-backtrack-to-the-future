@@ -26,15 +26,13 @@
 using namespace std;
 
 void solve(){
-
-} 
-
+    //TODO: implement solution here
+}
 int main(){
-	FastIO;
-	int t; cin>>t;
-	while(t--){
-		solve();
-	}
+    FastIO;
+    int t = 1; 
+    //int t; cin>>t;
+    while(t--) solve();
 }
 
 /*
