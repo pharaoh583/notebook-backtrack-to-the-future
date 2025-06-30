@@ -1,4 +1,8 @@
 \documentclass[10pt, landscape, twocolumn, a4paper, notitlepage]{article}
+\usepackage{xeCJK}
+\setCJKmainfont{IPAMincho}
+\setCJKsansfont{IPAGothic}
+\setCJKmonofont{IPAGothic}
 \usepackage{hyperref}
 \usepackage[spanish, activeacute]{babel}
 \usepackage{fancyhdr}
@@ -30,7 +34,7 @@
 \pagestyle{fancy}
 \fancyhead[LO]{\leftmark\ -\ \rightmark}
 %\fancyhead[C]{\textbf{AJI-UBA}}
-\fancyhead[RO]{\textbf{Backtrack to the Future} - rev \revision\ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
+\fancyhead[RO]{\textbf{(FFT) Final Fourier Tactics} - rev \revision\ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
 \fancyfoot{}
 \fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -71,51 +75,32 @@
 \tableofcontents\newpage
 
 %%% El texto propiamente dicho
-\nbtitle{Backtrack to the Future - Reference}
+\nbtitle{(FFT) Final Fourier Tactics - Reference}
 \section{Algoritmos}
 Para los randoms agregar al inicio del main
 \begin{code}
 srand ( unsigned ( std::time(0) ) ); //cambiar la semilla si WA
 double r = ((double) rand() / (RAND_MAX)); //0 <= r <= 1 
 \end{code}
-\textbf{\#include $<$algorithm$>$ \#include $<$numeric$>$ \\}
-\begin{tabular}{|l|l|l|} \hline
-\textbf{Algo} & \textbf{Params} &  \textbf{Funcion} \\  \hline
-%swap & e1, e2 &  da vuelta e1,e2 & $1$ \\ \hline
-sort, stable\_sort & f, l &  ordena el intervalo \\  \hline
-partial\_sort & f, m, l, [cmp] & [f,m) son los m-f menores en orden, \\ && [m,l) es el resto en algun orden \\ \hline
-%is\_sorted & f, l &  \textit{bool} si esta ordenado \\  \hline
-nth\_element & f, nth, l & \textit{void} ordena el n-esimo, y \\ && particiona el resto \\  \hline
-fill, fill\_n & f, l / n, elem & \textit{void} llena [f, l) o [f, \\ && f+n) con elem \\  \hline
-lower\_bound, upper\_bound & f, l, elem & \textit{it} al primer / ultimo donde se \\ && puede insertar elem para que\\ && quede ordenada \\  \hline
-binary\_search & f, l, elem & \textit{bool} esta elem en [f, l) \\  \hline
-copy & f, l, resul & hace resul+$i$=f+$i$ $\forall i$ \\  \hline
-find, find\_if, find\_first\_of & f, l, elem & \textit{it} encuentra i $\in$[f,l) tq. i$=$elem, \\ & / pred / f2, l2 & pred(i), i$\in$[f2,l2) \\ \hline
-count, count\_if & f, l, elem/pred & cuenta elem, pred(i) \\ \hline
-search & f, l, f2, l2 & busca [f2,l2) $\in$ [f,l) \\ \hline
-reverse & f, l & da vuelta \\ \hline
-partition, stable\_partition & f, l, pred & pred(i) ad, !pred(i) atras \\ \hline
-%min, max & e1, e2 & men / may & $1$ \\ \hline
-min\_element, max\_element & f, l, [comp] & \textit{it} min, max de [f,l] \\ \hline
-lexicographical\_compare & f1,l1,f2,l2 & \textit{bool} con [f1,l1]<[f2,l2] \\ \hline
-next/prev\_permutation & f,l & deja en [f,l) la perm sig, ant \\ \hline
-set\_intersection, & f1, l1, f2, l2, res & [res, $\ldots$) la op. de conj\\
-set\_difference, set\_union, & & \\
-set\_symmetric\_difference, & & \\ \hline
-accumulate & f,l,i,[op] & \textit{T} $=$ $\sum$/oper de [f,l) \\ \hline
-inner\_product & f1, l1, f2, i & \textit{T} $=$ i $+$ [f1, l1) . [f2, $\ldots$ ) \\ \hline
-partial\_sum & f, l, r, [op] & r+i = $\sum$/oper de [f,f+i] $\forall i \in$[f,l) \\ \hline
-adjacent\_difference & f, l, r, [op] & r[0]=f[0], r[i]=f[i] - f[i-1] $\forall i \in$[1,l-f) \\ \hline
-rand & & $$int \in [0, RMAX]; RMAX >= 32767$$ \\ \hline
-random\_shuffle & b, e & Hace un shuffle \\ \hline
-\end{tabular}
+
+\section{Tips}
+\begin{itemize}
+  \item What if the problem can be intepreted as a graph
+  \item Try binary (bits, binary search) 
+  \item Try to find a recurrence relation
+  \item Try the first idea that works and try to optimize later, maybe with a ds
+  \item If the complexity is tight implement and check if fits
+  \item Don't think same things over and over
+  \item Try sqrt decomposition 
+  
+\end{itemize}
 
 \section{Template}
 \begin{code}
 #include <bits/stdc++.h>
+#using namespace std;
 #define forn(i, n) for(int i=0;i<int(n);i++)
 #define forsn(i,s,n) for(int i=int(s);i<int(n);i++)
-#define DBG(x) cout<<#x<<" = "<<(x)<<el;
 #define all(v) (v).begin(),(v).end()
 #define FastIO ios_base::sync_with_stdio(false);cin.tie(NULL)
 #define ll long long
@@ -124,9 +109,9 @@ random\_shuffle & b, e & Hace un shuffle \\ \hline
 #define F first
 #define S second
 #define pb push_back
-#define pf push_front
 #define mp make_pair
 #define el "\n"
+#define dbg(x) cout<<#x<<" = "<<(x)<<el;
 void solve(){
     //TODO: implement solution here
 }
@@ -430,7 +415,7 @@ if n is prime then $\varphi(n) = n - 1$\\
 if n is a power of a prime then $\varphi(p^k) = p^k - p^(k-1)$\\
 \\
 Count divisors of n; $\sigma(n)$\\
-if n is prime then $\sigma(n) = 2$\\
+if n is a prime to the power of k $\sigma(n) = k + 1$\\
 \\
 Mobius function is defined as: \\
 $\mu(n) = \threepartdef
@@ -562,9 +547,7 @@ $!n = n(!(n - 1)) + (-1)^n; n > 0$
 1823 1831 1847 1861 1867 1871 1873 1877 1879 1889
 1901 1907 1913 1931 1933 1949 1951 1973 1979 1987
 1993 1997 1999 2003 2011 2017 2027 2029 2039 2053
-2063 2069 2081
-
-%2083 2087 2089 2099 2111 2113 2129
+2063 2069 2081 2083 2087 2089 2099 2111 2113 2129
 %2131 2137 2141 2143 2153 2161 2179 2203 2207 2213
 %2221 2237 2239 2243 2251 2267 2269 2273 2281 2287
 %2293 2297 2309 2311 2333 2339 2341 2347 2351 2357
@@ -610,7 +593,8 @@ $\pi(10^{12})$ = 37.607.912.018% ;
 Cantidad de divisores ($\sigma_0$) para \emph{algunos} $n / \neg\exists n'<n, \sigma_0(n') \geqslant \sigma_0(n)$ \\
 $\sigma_0(60)$ = 12 ; $\sigma_0(120)$ = 16 ; $\sigma_0(180)$ = 18 ; $\sigma_0(240)$ = 20 ; $\sigma_0(360)$ = 24 \\
 $\sigma_0(720)$ = 30 ; $\sigma_0(840)$ = 32 ; $\sigma_0(1260)$ = 36 ; $\sigma_0(1680)$ = 40 ; $\sigma_0(10080)$ = 72 \\ $\sigma_0(15120)$ = 80 ; $\sigma_0(50400)$ = 108 ; $\sigma_0(83160)$ = 128 ; $\sigma_0(110880)$ = 144 \\
-$\sigma_0(498960)$ = 200 ; $\sigma_0(554400)$ = 216 ; $\sigma_0(1081080)$ = 256 ; $\sigma_0(1441440)$ = 288  $\sigma_0(4324320)$ = 384 ; $\sigma_0(8648640)$ = 448
+$\sigma_0(498960)$ = 200 ; $\sigma_0(554400)$ = 216 ; $\sigma_0(1081080)$ = 256 ; $\sigma_0(1441440)$ = 288 ; $\sigma_0(4324320)$ = 384 ; $\sigma_0(8648640)$ = 448 ;
+$\sigma_0(1000000000)$ = 1344 ;
 
 %
 Suma de divisores ($\sigma_1$) para \emph{algunos} $n / \neg\exists n'<n, \sigma_1(n') \geqslant \sigma_1(n)$ \\
@@ -1745,6 +1729,48 @@ Ya me canse de ser tu fuente de algoritmos \\
 \\
 \\
 \textit{Gracias TCA por todo lo que me enseñaste estos años} \\
-\newpage
-\end{document}
 
+\newpage
+\begin{verbatim}
+Baby, baby, don't look so sad
+There's gonna be a better tomorrow
+重い扉の向こうは
+いつでも 青空さ
+昨日と同じ一日が暮れて
+彼女は深い溜息とともに眠る
+果たせなかった約束
+またひとつ増えただけ
+それでも明日を夢見る
+Baby, baby, close your eyes
+Go back into your endless dream
+目覚める頃はとっくに
+笑顔が戻ってる
+いい事だけを信じてるうちに
+すべてを許せる自分に会える
+いつか
+あんなに愛した人も
+愛してくれた人も
+振り向けば ただの幻
+Baby, baby, don't think you're lonely
+Don't give up loving somebody new
+繰り返される別れに
+臆病にならないで
+Ah, 淋しいなんて
+Ah, 感じるひまもないくらい
+Uh-uh-uh, uh-uh-uh, uh-uh
+Uh-uh-uh, uh-uh-uh, uh-uh
+果たせなかった約束
+またひとつ増えただけ
+それでも明日を夢見る
+Baby, baby, don't look so sad
+There's gonna be a better tomorrow
+重い扉の向こうは
+いつでも 青空さ
+Baby, baby, close your eyes
+Go back into your endless dream
+果てしない夢の続き
+見させてあげるから
+
+竹内まりやの「夢の続き」
+\end{verbatim}
+\end{document}
