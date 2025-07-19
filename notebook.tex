@@ -84,15 +84,38 @@ double r = ((double) rand() / (RAND_MAX)); //0 <= r <= 1
 \end{code}
 
 \section{Tips}
+For problem solving
 \begin{itemize}
-  \item What if the problem can be intepreted as a graph
+  \item What if the problem can be intepreted as a graph, maybe is a state space search with BFS/Dijkstra/meet in the middle
   \item Try binary (bits, binary search) 
   \item Try to find a recurrence relation
   \item Try the first idea that works and try to optimize later, maybe with a ds
   \item If the complexity is tight implement and check if fits
   \item Don't think same things over and over
   \item Try sqrt decomposition 
-  
+  \item If some thing can only be used/activated a limited number of times try flows
+  \item If you’re stuck: Try small cases, simulate and print
+  \item Think from both ends (two pointers, meet-in-the-middle, or bidirectional BFS).
+  \item Try reducing the problem to a known one, specially when dealing with np problems
+\end{itemize}
+
+For debugging
+\begin{itemize}
+    \item If there are multiple test cases add two consecutive test that are equal
+    \item Check if you are restarting values (specially on graph problems with global values)
+    \item Try a brute-force or slow version to compare outputs 
+\end{itemize}
+
+In case of Time Limit
+\begin{itemize}
+    \item Use bitwise tricks/bitsets if possible $(x & (x - 1)) == 0$ to check power of two.
+    \item Use array instead of vector
+    \item int operations are faster than long long ones
+    \item Use iterative instead of recursive
+    \item Use only required libraries intead of bits/stdc++.h
+Before reducing the constant of your algorithm check if you can reduce complexity by using better algorithms/data structures
+for example:
+$O(2^n) > O(2^{n−1})$
 \end{itemize}
 
 \section{Template}
@@ -122,7 +145,7 @@ int main(){
     while(t--) solve();
 }
 \end{code}
-
+\newpage
 
 \section{Estructuras}
 \subsection{Mo's}
@@ -479,6 +502,37 @@ pair<ll,ll> crt(vector< tuple<ll,ll,ll> > cond) { // returns: (sol, lcm)
 	}
 	return sol(make_tuple(1,x1,m1));
 } //cond[i]={ai,bi,mi} ai*xi=bi (mi); assumes lcm fits in ll
+\end{code}
+\subsection{Discrete log}
+Returns x such that $a^x = b (mod m)$ or -1 if inexistent in $O(\sqrt{m})$
+\begin{code}
+ll discrete_log(ll a,ll b,ll m) {
+    a%=m, b%=m;
+    if(b == 1) return 0;
+    int cnt=0;
+    ll tmp=1;
+    for(int g=__gcd(a,m);g!=1;g=__gcd(a,m)) {
+        if(b%g) return -1;
+        m/=g, b/=g;
+        tmp = tmp*a/g%m;
+        ++cnt;
+        if(b == tmp) return cnt;
+    }
+    map<ll,int> w;
+    int s = ceil(sqrt(m));
+    ll base = b;
+    forn(i,s) {
+        w[base] = i;
+        base=base*a%m;
+    }
+    base=fastpow(a,s,m);
+    ll key=tmp;
+    forsn(i,1,s+2) {
+        key=base*key%m;
+        if(w.count(key)) return i*s-w[key]+cnt;
+    }
+    return -1;
+}
 \end{code}
 \subsection{Factoriales e Inversas}
 \begin{code}
