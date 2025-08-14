@@ -6,6 +6,7 @@
 typedef ll tf;
 typedef vector<tf> poly;
 const tf MOD=2305843009255636993,RT=5;
+const double pi = acos(-1.0)
 // FFT
 struct CD {
 	double r,i;

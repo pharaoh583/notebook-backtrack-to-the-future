@@ -1,5 +1,6 @@
 /// Complexity: O(|E|*|V|^2)
 /// Faster flow algorithm 
+// to check if edge is saturated cap == 0   
 struct edge { int v, cap, inv, flow; };
 struct network {
   int n, s, t;

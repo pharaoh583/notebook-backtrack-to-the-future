@@ -33,7 +33,7 @@
 %%% Encabezado y pie de página
 \pagestyle{fancy}
 \fancyhead[LO]{\leftmark\ -\ \rightmark}
-%\fancyhead[C]{\textbf{AJI-UBA}} This notebook was based on AJI-UBA ;v
+%\fancyhead[C]{\textbf{AJI-UBA}}
 \fancyhead[RO]{\textbf{(FFT) Final Fourier Tactics} - rev \revision\ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
 \fancyfoot{}
 \fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
@@ -162,7 +162,7 @@ inline int64_t hilbertOrder(int x, int y, int pow, int rotate) {
     int nrot = (rotate + rotateDelta[seg]) & 3;
     int64_t subSquareSize = int64_t(1) << (2*pow - 2);
     int64_t ans = seg * subSquareSize;
-    int64_t add = gilbertOrder(nx, ny, pow-1, nrot);
+    int64_t add = hilbertOrder(nx, ny, pow-1, nrot);
     ans += (seg == 1 || seg == 2) ? add : (subSquareSize - add - 1);
     return ans;
 }
@@ -171,7 +171,7 @@ struct Query {
     int l, r, idx;
     int64_t ord;
     inline void calcOrder() {
-        ord = gilbertOrder(l, r, 21, 0);
+        ord = hilbertOrder(l, r, 21, 0);
     }
     bool operator <(query &other) const {
         return ord < other.ord;
@@ -693,6 +693,7 @@ TODO: add operations
 typedef ll tf;
 typedef vector<tf> poly;
 const tf MOD=2305843009255636993,RT=5;
+const double pi = acos(-1.0)
 // FFT
 struct CD {
 	double r,i;
@@ -915,7 +916,7 @@ struct Hash {
 		return (h0<<32)|h1;
 	}
 };
-//this hash is slower but more accurate
+//this hash is slower but accurate
 #define bint __int128
 struct Hash {
 	bint MOD=212345678987654321LL,P=1777771,PI=106955741089659571LL;
@@ -938,42 +939,113 @@ struct Hash {
 	}
 };
 \end{code}
+\subsection{Suffix Array}
+\begin{code}
+#define RB(x) (x < n ? r[x] : 0)
+ 
+void csort(vi& sa, vi& r, int k) {
+    int n = sa.size();
+    vi f(max(255, n), 0), t(n);
+    forn(i, n) f[RB(i + k)]++;
+    int sum  = 0;
+    forn(i, max(255, n)) f[i] = (sum += f[i]) - f[i];
+    forn(i, n) t[f[RB(sa[i] + k)]++] = sa[i];
+    sa = t;
+}
+ 
+vi constructSA(string& s) { //O(nlogn)
+    int n = s.size(), rank;
+    vector<int> sa(n), r(n), t(n);
+    forn(i, n) sa[i] = i, r[i] = s[i];
+    for(int k = 1; k < n; k *= 2) {
+        csort(sa, r, k); csort(sa, r, 0);
+        t[sa[0]] = rank = 0;
+        for(int i = 1; i < n; i++) {
+            if(r[sa[i]] != r[sa[i - 1]] or RB(sa[i] + k) != RB(sa[i - 1] + k)) rank++;
+            t[sa[i]] = rank;
+        }
+        r = t;
+        if (r[sa[n - 1]] == n - 1) break;
+    }
+    return sa;
+}
+
+vector<int> constructLCP(vector<int>& sa, string& s){ //O(n)
+    int n = sa.size();
+    vector<int> lcp(n), rank(n);
+    forn(i, n) rank[sa[i]] = i;
+    int l = 0;
+    forn(i, n){
+        if(rank[i] == n-1){
+            lcp[rank[i]] = 0, l = 0;
+            continue;
+        }
+
+        int j = rank[i] + 1;
+        while(i+l < n and j+l < n and s[i+l] == s[j+l]) l++;
+        lcp[rank[i]] = l;
+        if(l) l--;
+    }
+    return lcp;
+}
+ 
+int findRange(string& s1, string& s2, vi& sa) { //O(s1log(s2))
+    if (s2.size() < s1.size()) {
+        return 0;
+    }
+    int result_start = 0, result_end = s2.size() - 1;
+    forn(i, s1.size()) {
+        int start = lower_bound(sa.begin() + result_start, sa.begin() + result_end + 1, s1[i], [&](int idx, char b) {
+            return idx + i >= s2.size() || s2[idx + i] < b;
+        }) - sa.begin();
+        if (start > result_end || (s2[sa[start] + i]) != s1[i]) {
+            return 0;
+        }
+        int end = upper_bound(sa.begin() + result_start, sa.begin() + result_end + 1, s1[i], [&](char b, int idx) {
+            return idx + i < s2.size() && s2[idx + i] > b;
+        }) - sa.begin() - 1;
+        result_start = start;
+        result_end = end;
+    }
+    return result_end - result_start + 1;
+}
+\end{code}
 \subsection{Aho-Corasick}
 \begin{code}
 struct vertex {
-	map<char,int> next,go;
-	int p,link;
-	char pch;
-	vector<int> leaf;
-	vertex(int p=-1, char pch=-1):p(p),pch(pch),link(-1){}
+    map<char,int> next,go;
+    int p,link;
+    char pch;
+    vector<int> leaf;
+    vertex(int p=-1, char pch=-1):p(p),pch(pch),link(-1){}
 };
 vector<vertex> t;
 void aho_init(){ //do not forget!!
-	t.clear();t.pb(vertex());
+    t.clear();t.pb(vertex());
 }
 void add_string(string s, int id){
-	int v=0;
-	for(char c:s){
-		if(!t[v].next.count(c)){
-			t[v].next[c]=t.size();
-			t.pb(vertex(v,c));
-		}
-		v=t[v].next[c];
-	}
-	t[v].leaf.pb(id);
+    int v=0;
+    for(char c:s){
+        if(!t[v].next.count(c)){
+            t[v].next[c]=t.size();
+            t.pb(vertex(v,c));
+        }
+        v=t[v].next[c];
+    }
+    t[v].leaf.pb(id);
 }
 int go(int v, char c);
 int get_link(int v){
-	if(t[v].link<0)
-		if(!v||!t[v].p)t[v].link=0;
-		else t[v].link=go(get_link(t[v].p),t[v].pch);
-	return t[v].link;
+    if(t[v].link<0)
+        if(!v||!t[v].p)t[v].link=0;
+        else t[v].link=go(get_link(t[v].p),t[v].pch);
+    return t[v].link;
 }
 int go(int v, char c){
-	if(!t[v].go.count(c))
-		if(t[v].next.count(c))t[v].go[c]=t[v].next[c];
-		else t[v].go[c]=v==0?0:go(get_link(v),c);
-	return t[v].go[c];
+    if(!t[v].go.count(c))
+        if(t[v].next.count(c))t[v].go[c]=t[v].next[c];
+        else t[v].go[c]=v==0?0:go(get_link(v),c);
+    return t[v].go[c];
 }
 \end{code}
 \subsection{Manacher's Algorithm}
@@ -984,26 +1056,27 @@ int d2[1000000];//d2[i] = max even palindrome centered on i
 //d1 1111117111111
 //d2 0103010010301
 void manacher(string& s){
-	int l=0,r=-1,n=s.size();
-	forn(i,n){
-		int k=i>r?1:min(d1[l+r-i],r-i);
-		while(i+k<n&&i-k>=0&&s[i+k]==s[i-k])k++;
-		d1[i]=k--;
-		if(i+k>r)l=i-k,r=i+k;
-	}
-	l=0;r=-1;
-	forn(i,n){
-		int k=i>r?0:min(d2[l+r-i+1],r-i+1);k++;
-		while(i+k<=n&&i-k>=0&&s[i+k-1]==s[i-k])k++;
-		d2[i]=--k;
-		if(i+k-1>r)l=i-k,r=i+k-1;
-	}
+    int l=0,r=-1,n=s.size();
+    forn(i,n){
+        int k=i>r?1:min(d1[l+r-i],r-i);
+        while(i+k<n&&i-k>=0&&s[i+k]==s[i-k])k++;
+        d1[i]=k--;
+        if(i+k>r)l=i-k,r=i+k;
+    }
+    l=0;r=-1;
+    forn(i,n){
+        int k=i>r?0:min(d2[l+r-i+1],r-i+1);k++;
+        while(i+k<=n&&i-k>=0&&s[i+k-1]==s[i-k])k++;
+        d2[i]=--k;
+        if(i+k-1>r)l=i-k,r=i+k-1;
+    }
 }
 \end{code}
 \section{Flujos}
 \subsection{Dinic? No era Dinitz??}
 Runs in $O(EV^2)$
 \begin{code}
+// to check if edge is saturated cap == 0
 struct edge { int v, cap, inv, flow; };
 struct network {
   int n, s, t;
@@ -1142,6 +1215,7 @@ struct matching_weighted {
 };
 \end{code}
 \subsection{mcmf}
+Runs in $O(VE + F(ElogV)$ where F is the max flow
 \begin{code}
 typedef ll tf;
 typedef ll tc;

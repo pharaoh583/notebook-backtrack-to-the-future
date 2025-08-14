@@ -27,7 +27,7 @@ struct Hash {
 };
 
 
-//this hash is slower but more accurate
+//this hash is slower but accurate
 #define bint __int128
 struct Hash {
 	bint MOD=212345678987654321LL,P=1777771,PI=106955741089659571LL;
