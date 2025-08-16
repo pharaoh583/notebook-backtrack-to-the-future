@@ -27,26 +27,22 @@ vi constructSA(string& s) { //O(nlogn)
     return sa;
 }
 
-vector<int> constructLCP(vector<int>& sa, string& s){ //O(n)
-    int n = sa.size();
-    vector<int> lcp(n), rank(n);
-    forn(i, n) rank[sa[i]] = i;
-    int l = 0;
-    forn(i, n){
-        if(rank[i] == n-1){
-            lcp[rank[i]] = 0, l = 0;
-            continue;
-        }
-
-        int j = rank[i] + 1;
-        while(i+l < n and j+l < n and s[i+l] == s[j+l]) l++;
-        lcp[rank[i]] = l;
-        if(l) l--;
-    }
-    return lcp;
+vector<int> computeLCP(string& s, vector<int>& sa){
+	int n=s.size(),L=0;
+	vector<int> lcp(n),plcp(n),phi(n);
+	phi[sa[0]]=-1;
+	forsn(i,1,n)phi[sa[i]]=sa[i-1];
+	forn(i,n){
+		if(phi[i]<0){plcp[i]=0;continue;}
+		while(s[i+L]==s[phi[i]+L])L++;
+		plcp[i]=L;
+		L=max(L-1,0);
+	}
+	forn(i,n)lcp[i]=plcp[sa[i]];
+	return lcp; // lcp[i]=LCP(sa[i-1],sa[i])
 }
  
-int findRange(string& s1, string& s2, vi& sa) { //O(s1log(s2))
+int patternMatching(string& s1, string& s2, vi& sa) { //O(s1log(s2))
     if (s2.size() < s1.size()) {
         return 0;
     }
