@@ -346,90 +346,72 @@ ll centroidDecomposition(int provRoot = 0) {
 
 \subsection{El versatil}
 \begin{code}
-//this example supports range sum queries, range updates [l,r] = x and 
-//range sum updates [l,r] += x
-class SegTree {
-private:
-    int n;
-    vi t, a;
-    vi lazyUpd, lazySum;
-    void build(int p, int L, int R) {
-        if(L == R) {t[p] = a[L]; return;}
-        int m = (L + R)/2;
-        build(p<<1, L, m); build(p<<1|1, m + 1, R);
-        t[p] = t[p<<1] + t[p<<1|1];
+#define NEUT INF
+typedef int T;
+T op(T a, T b) {return min(a, b);}
+struct STree {
+    vector<T> st; int n;
+    STree(int n) : st(4 * n + 5, NEUT), n(n) {}
+    void init(int p, int l, int r, vector<T>& a) {
+        if(l == r) {st[p]=a[l]; return;}
+        int m = (l+r)/2;
+        init(p<<1, l, m, a); init(p<<1|1, m + 1, r, a);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    void push(int p, int L, int R) {
-        if(L == R) {
-            if(lazyUpd[p] != -1) {
-                t[p] = lazyUpd[p];
-            }
-            t[p] += lazySum[p];
-            lazyUpd[p] = -1; lazySum[p] = 0;
-            return;
-        }
-        if(lazyUpd[p] != -1) {
-            t[p] = lazyUpd[p] * (R - L + 1);
-            lazyUpd[p<<1] = lazyUpd[p<<1|1] = lazyUpd[p];
-            lazyUpd[p] = -1;
-            lazySum[p<<1] = lazySum[p<<1|1] = 0;
-        }
-        t[p] += lazySum[p] * (R - L + 1);
-        lazySum[p<<1] += lazySum[p];
-        lazySum[p<<1|1] += lazySum[p];
-        lazySum[p] = 0;
+    void upd(int p, int l, int r, int pos, T val) {
+        if(l == r) {st[p] = val; return;}
+        int m = (l + r)/2;
+        if(pos <= m) upd(p<<1, l, m, pos, val);
+        else upd(p<<1|1, m + 1, r, pos, val);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    ll query(int p, int L, int R, int l, int r) {
-        if(l > r) return 0;
-        push(p, L, R);
-        if(l <= L and R <= r) return t[p];
-        int m = (L + R)/2;
-        return query(p<<1, L, m, l, min(r, m)) +
-               query(p<<1|1, m + 1, R, max(l, m + 1), r);
+    T query(int p, int l, int r, int a, int b) { //query of [l, r]
+        if(l > b or r < a) return NEUT;
+        if(a <= l and r <= b) return st[p];
+        int m = (l + r)/2;
+        return oper(query(p<<1, l, m, a, b), query(p<<1|1, m + 1, r, a, b));
     }
-    void update(int p, int L, int R, int l, int r, int v) {
-        if(l > r) return;
-        push(p, L, R);
-        if(l <= L and R <= r) {
-            lazyUpd[p] = v; lazySum[p] = 0; return;
-        }
-        int m = (L + R)/2;
-        update(p<<1, L, m, l, min(m, r), v);
-        update(p<<1|1, m + 1, R, max(m + 1, l), r, v);
-        push(p<<1, L, m);
-        push(p<<1|1, m + 1, R);
-        t[p] = t[p<<1] + t[p<<1|1];
-    }
-    void sum(int p, int L, int R, int l, int r, int v) {
-        if(l > r) return;
-        push(p, L, R);
-        if(l <= L and R <= r) {
-            lazySum[p] += v; return;
-        }
-        int m = (L + R)/2;
-        sum(p<<1, L, m, l, min(m, r), v);
-        sum(p<<1|1, m + 1, R, max(m + 1, l), r, v);
-        push(p<<1, L, m);
-        push(p<<1|1, m + 1, R);
-        t[p] = t[p<<1] + t[p<<1|1];
-    }
-public: 
-    SegTree(int n) : n(n), t(4 * n, 0), lazySum(4 * n, 0), 
-    lazyUpd(4 * n, -1) { }
-    SegTree(vi A) : SegTree(A.size()) {
-        a = A;
-        build(1, 0, n - 1);
-    }
-    ll query(int l, int r) {
-        return query(1, 0, n - 1, l, r);
-    }
-    void update(int l, int r, ll v) {
-        update(1, 0, n - 1, l, r, v);
-    }
-    void sum(int l, int r, ll v) {
-        sum(1, 0, n - 1, l, r, v);
-    }
+
+    void init(vector<T>& a){init(1, 0, n - 1, a);}
+    void upd(int p, T val) {upd(1, 0, n - 1, p, v);}
+    T query(int a, int b) {return query(1, 0, n - 1, a, b);}
 };
+\end{code}
+\subsection{El versatil 2D}
+\begin{code}
+int n, m; 
+const int MAXN = 1000;
+int a[MAXN][MAXN], st[2*MAXN][2*MAXN];
+#define NEUT 0
+int oper(int a, int b) {return a + b;}
+void build() {
+    forn(i, n) forn(j, m) st[i + n][j + m] = a[i][j];
+    forn(i, n) for(int j = m - 1; j; --j)
+        st[i + n][j] = oper(st[i + n][j<<1], st[i + n][j<<1|1]);
+    for(int i = n - 1; i; --i) forn(j, m<<1) {
+        st[i][j] = oper(st[i<<1][j], st[i<<1|1][j]);
+    }
+}
+void upd(int r, int c, int v){
+    st[r+n][c+m] = v;
+    for(int j=c+m; j>1; j>>=1) st[r+n][j>>1]=oper(st[r+n][j], st[r+n][j^1]);
+    for(int i = r+n; i>1; i>>=1) for(int j = c+m; j; j>>=1)
+        st[i>>1][j]=oper(st[i][j], st[i^1][j]);
+}
+//query of [r0, r1), [c0, c1)
+int query(int r0, int r1, int c0, int c1) {
+    int r = NEUT;
+    for(int i0=r0+n, i1=r1+n; i0<i1; i0>>=1, i1>>=1) {
+        int t[4], q = 0;
+        if(i0&1) t[q++]=i0++;
+        if(i1&1) t[q++]=--i1;
+        forn(k, q) for(int j0=c0+m, j1=c1+m; j0<j1; j0>>=1, j1>>=1) {
+            if(j0&1) r=oper(r, st[t[k]][j0++]);
+            if(j1&1) r=oper(r, st[t[k]][--j1]);
+        }
+    }
+    return r;
+}
 \end{code}
 \subsection{Sparse Table}
 \begin{code}
