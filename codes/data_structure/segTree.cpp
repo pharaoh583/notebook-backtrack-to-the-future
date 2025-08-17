@@ -1,42 +1,30 @@
-class SegTree {
-private:
-    int n;
-    vi A, t;
-    
-    void build() {
-        forn(i, n) {
-            t[i + n] = A[i];
-        }
-        
-        for(int i = n - 1; i > 0; i--) {
-            t[i] = t[i<<1] + t[i<<1|1];
-        }
+#define NEUT INF
+typedef int T;
+T op(T a, T b) {return min(a, b);}
+struct STree {
+    vector<T> st; int n;
+    STree(int n) : st(4 * n + 5, NEUT), n(n) {}
+    void init(int p, int l, int r, vector<T>& a) {
+        if(l == r) {st[p]=a[l]; return;}
+        int m = (l+r)/2;
+        init(p<<1, l, m, a); init(p<<1|1, m + 1, r, a);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    
-public:
-    SegTree(int sz) : n(sz), t(2 * sz) {}
-    SegTree(const vi &initA) : SegTree((int)initA.size()) {
-        A = initA;
-        build();
+    void upd(int p, int l, int r, int pos, T val) {
+        if(l == r) {st[p] = val; return;}
+        int m = (l + r)/2;
+        if(pos <= m) upd(p<<1, l, m, pos, val);
+        else upd(p<<1|1, m + 1, r, pos, val);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    
-    ll RSQ(int l, int r) {
-        ll tot = 0;
-        for(l += n, r += n; l < r; l>>=1, r>>=1) {
-            if(l&1) tot += t[l++];
-            if(r&1) tot += t[--r];
-        }
-        return tot;
+    T query(int p, int l, int r, int a, int b) { //query of [l, r]
+        if(l > b or r < a) return NEUT;
+        if(a <= l and r <= b) return st[p];
+        int m = (l + r)/2;
+        return oper(query(p<<1, l, m, a, b), query(p<<1|1, m + 1, r, a, b));
     }
-    
-    void update(int pos, int val) {
-        for(t[pos += n] = val; pos > 1; pos >>=1) t[pos>>1] = t[pos] + t[pos^1];
-    }
-    
-    void print() {
-        forn(i,2 * n) {
-            cout<<t[i]<<" ";
-        } cout<<el;
-    }
+
+    void init(vector<T>& a){init(1, 0, n - 1, a);}
+    void upd(int p, T val) {upd(1, 0, n - 1, p, v);}
+    T query(int a, int b) {return query(1, 0, n - 1, a, b);}
 };
-//code from https://codeforces.com/blog/entry/18051
