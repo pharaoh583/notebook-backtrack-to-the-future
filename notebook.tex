@@ -890,6 +890,21 @@ pair<double,vector<double> > simplex( // maximize c^T x s.t. Ax<=b, x>=0
 }
 \end{code}
 \section{Strings}
+\subsection{Z-algorithm}
+Runs in $O(n)$
+\begin{code}
+// to find a pattern, concat p#s and check all values in z such that p.size() == z[i]
+vi z_function(string& s) {
+    int l = 0, r = 0, n = s.size();
+    vi z(n, 0); //z[i] = max k: s[0, k) == s[i, i + k)
+    forsn(i, 1, n) {
+        if(i <= r) z[i] = min(r - i + 1, z[i - l]);
+        while(i + z[i] < n and s[z[i]] == s[i + z[i]]) z[i]++;
+        if(i + z[i] - 1 > r) l = i, r = i + z[i] - 1;
+    }
+    return z;
+}
+\end{code}
 \subsection{Hash}
 \begin{code}
 struct Hash {
