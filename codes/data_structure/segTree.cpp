@@ -1,6 +1,6 @@
 #define NEUT INF
 typedef int T;
-T op(T a, T b) {return min(a, b);}
+T oper(T a, T b) {return min(a, b);}
 struct STree {
     vector<T> st; int n;
     STree(int n) : st(4 * n + 5, NEUT), n(n) {}
