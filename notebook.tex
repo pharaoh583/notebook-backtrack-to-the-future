@@ -1921,11 +1921,14 @@ struct CHT : public multiset<Line> { // for maximum
 };
 \end{code}
 \subsection{Knuth optimization}
-First make sure the following
+This optimization is used when we have to partition 
+an array into single pieces and each partition have a cost
+First make sure the following: 
 We can do knuth if $opt[i,j - 1] \le opt[i,j] \le opt[i + 1, j]$
 We can prove the dp follows this rule if \\
 1. $C(b, c) \le C(a, d)$ \\
-2. $C(a, c) + C(b, d) \le C(a, d) + C(b, c)$
+2. $C(a, c) + C(b, d) \le C(a, d) + C(b, c)$ 
+$O(n^3) -> O(n^2)$ assuming $O(C(i, j)) = O(1)$
 \begin{code}
 int dp[N][N], opt[N][N];
 // Implement cost function C.
@@ -1946,6 +1949,38 @@ for (int i = N-2; i >= 0; i--) {
         }
         dp[i][j] = mn; 
     }
+}
+\end{code}
+\subsection{D&C optimization}
+This optimization is used when we have to partition
+an array into k subarrays. Each subarray have a cost
+First make sure the following: 
+$C(a, c) + C(b, d) \le C(a, d) + C(b, c)$ QI
+$O(n^2m) -> O(nmlogn)$ assuming $O(C(i, j)) = O(1)$
+\begin{code}
+int n, m; //amount of elements, amount of partitions
+vector<ll> dp_before, dp_cur;
+ll C(int i, int j) {} //TODO: implement cost function
+void compute(int l, int r, int optl, int optr) {
+    if(l > r) return;
+    int mid = (l + r) >> 1;
+    for(int k = optl; k <= min(mid, optr); k++) {
+        best = min(best, {(k ? dp_before[k - 1] : 0) + C(k, mid), k});
+    }
+    dp_cur[mid] = best.first;
+    int opt = best.second;
+    compute(l, mid - 1, optl, opt);
+    compute(mid + 1, r, opt, optr);
+}
+ll solveDp() {
+    dp_before.assign(n, 0);
+    dp_cur.assign(n, 0);
+    forn(i, n) dp_before[i] = C(0, i);
+    forsn(i, 1, m) {
+        compute(0, n - 1, 0, n - 1);
+        swap(dp_before, dp_cur);
+    }
+    return dp_before[n - 1];
 }
 \end{code}
 \subsection{AIUDA!!! (sosdp)}
