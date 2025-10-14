@@ -1,7 +1,7 @@
 //TODO: implement oper function
 //TODO: define MAXN
 //TODO: define NEUT neutral value for queries on segtree and hld
-//TODO: implement SegTree, queries should be [l, r)
+//TODO: implement SegTree, queries should be [l, r]
 vi g[MAXN];
 int wg[MAXN],dad[MAXN],dep[MAXN]; // weight,father,depth
 void dfs1(int x){
@@ -21,19 +21,20 @@ void hld(int x, int c){
 	for(int y:g[x])if(y!=mx&&y!=dad[x])hld(y,-1);
 }
 void hld_init(){dad[0]=-1;dep[0]=0;dfs1(0);curpos=0;hld(0,-1);}
-ll query(int x, int y, SegTree& rmq){
+ll query(int x, int y, STree& rmq){
 	ll r=NEUT;
 	while(head[x]!=head[y]){
 		if(dep[head[x]]>dep[head[y]])swap(x,y);
-		r=oper(r,rmq.query(pos[head[y]],pos[y]+1));
+		r=oper(r,rmq.query(pos[head[y]],pos[y]));
 		y=dad[head[y]];
 	}
 	if(dep[x]>dep[y])swap(x,y); // now x is lca
-	r=oper(r,rmq.query(pos[x],pos[y]+1));
+	r=oper(r,rmq.query(pos[x],pos[y]));
 	return r;
 }
 // for creation call hld_init then create z such that z[pos[i]] = cost[i]
 // init SegTree with z, then you can start doing queries
 // for updating: rmq.upd(pos[x],v);
 // queries on edges: - assign values of edges to "child" node
-//                   - change pos[x] to pos[x]+1 i
+//                   - change pos[x] to pos[x]+1 in query (line 32)
+//to do queries on edge is enough to check the one edge that is not the dad of the other

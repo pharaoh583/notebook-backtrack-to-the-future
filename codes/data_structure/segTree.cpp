@@ -25,6 +25,6 @@ struct STree {
     }
 
     void init(vector<T>& a){init(1, 0, n - 1, a);}
-    void upd(int p, T val) {upd(1, 0, n - 1, p, v);}
+    void upd(int p, T val) {upd(1, 0, n - 1, p, val);}
     T query(int a, int b) {return query(1, 0, n - 1, a, b);}
 };

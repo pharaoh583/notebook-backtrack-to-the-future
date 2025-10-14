@@ -268,8 +268,8 @@ void output(pitem t){ // useful for debugging
 \begin{code}
 //TODO: implement oper function
 //TODO: define MAXN
-//TODO: define NEUT neutral value for queries on SegTree and hld
-//TODO: implement SegTree, queries should be [l, r)
+//TODO: define NEUT neutral value for queries on segtree and hld
+//TODO: implement SegTree, queries should be [l, r]
 vi g[MAXN];
 int wg[MAXN],dad[MAXN],dep[MAXN]; // weight,father,depth
 void dfs1(int x){
@@ -289,22 +289,23 @@ void hld(int x, int c){
 	for(int y:g[x])if(y!=mx&&y!=dad[x])hld(y,-1);
 }
 void hld_init(){dad[0]=-1;dep[0]=0;dfs1(0);curpos=0;hld(0,-1);}
-ll query(int x, int y, SegTree& rmq){
+ll query(int x, int y, STree& rmq){
 	ll r=NEUT;
 	while(head[x]!=head[y]){
 		if(dep[head[x]]>dep[head[y]])swap(x,y);
-		r=oper(r,rmq.query(pos[head[y]],pos[y]+1));
+		r=oper(r,rmq.query(pos[head[y]],pos[y]));
 		y=dad[head[y]];
 	}
 	if(dep[x]>dep[y])swap(x,y); // now x is lca
-	r=oper(r,rmq.query(pos[x],pos[y]+1));
+	r=oper(r,rmq.query(pos[x],pos[y]));
 	return r;
 }
-// for creation call hld_init after reading g then create z such that z[pos[i]] = cost[i]
+// for creation call hld_init then create z such that z[pos[i]] = cost[i]
 // init SegTree with z, then you can start doing queries
 // for updating: rmq.upd(pos[x],v);
 // queries on edges: - assign values of edges to "child" node
-//                   - change pos[x] to pos[x]+1 i
+//                   - change pos[x] to pos[x]+1 in query (line 32)
+//to do queries on edge is enough to check the one edge that is not the dad of the other
 \end{code}
 \subsection{Centroid decomposition}
 \begin{code}
@@ -373,7 +374,40 @@ struct STree {
     }
 
     void init(vector<T>& a){init(1, 0, n - 1, a);}
-    void upd(int p, T val) {upd(1, 0, n - 1, p, v);}
+    void upd(int p, T val) {upd(1, 0, n - 1, p, val);}
+    T query(int a, int b) {return query(1, 0, n - 1, a, b);}
+};
+\end{code}
+\subsection{SegTree con lazy}
+\begin{code}
+#define NEUT INF
+typedef int T;
+T oper(T a, T b) {return min(a, b);}
+struct STree {
+    vector<T> st; int n;
+    STree(int n) : st(4 * n + 5, NEUT), n(n) {}
+    void init(int p, int l, int r, vector<T>& a) {
+        if(l == r) {st[p]=a[l]; return;}
+        int m = (l+r)/2;
+        init(p<<1, l, m, a); init(p<<1|1, m + 1, r, a);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
+    }
+    void upd(int p, int l, int r, int pos, T val) {
+        if(l == r) {st[p] = val; return;}
+        int m = (l + r)/2;
+        if(pos <= m) upd(p<<1, l, m, pos, val);
+        else upd(p<<1|1, m + 1, r, pos, val);
+        st[p] = oper(st[p<<1], st[p<<1|1]);
+    }
+    T query(int p, int l, int r, int a, int b) { //query of [l, r]
+        if(l > b or r < a) return NEUT;
+        if(a <= l and r <= b) return st[p];
+        int m = (l + r)/2;
+        return oper(query(p<<1, l, m, a, b), query(p<<1|1, m + 1, r, a, b));
+    }
+
+    void init(vector<T>& a){init(1, 0, n - 1, a);}
+    void upd(int p, T val) {upd(1, 0, n - 1, p, val);}
     T query(int a, int b) {return query(1, 0, n - 1, a, b);}
 };
 \end{code}
@@ -451,7 +485,7 @@ struct DSU {
   }
 };
 \end{code}
-\subsection{fenwick Tree}
+\subsection{Fenwick Tree}
 \begin{code}
 int ft[MAXN+1]; 
 void upd(int i0, int v){
@@ -1608,7 +1642,7 @@ ln bisector(pt p, pt q) { // segment bisector
     return ln((p+q)*.5, p).rot(ccw90);
 }
 \end{code}
-\subsection{poly}
+\subsection{Poly}
 \begin{code}
 int sgn(double x){return x < -EPS?-1:X > EPS;}
 struct pol{
@@ -1723,8 +1757,7 @@ ll query(pt v) {
     return r;
 }
 \end{code}
-
-\subsection{circle}
+\subsection{Circle}
 \begin{code}
 struct circle {
 	pt o;double r;
@@ -1805,52 +1838,6 @@ vector<double> intercircles(vector<circle> c){
 	return r;
 }
 \end{code}
-\subsection{Cross and Dot product}
-\begin{code}
-//returns orientation with respect to 0; 
-//< 0 -> b is to the left of a
-//> 0 -> b is to the right of a
-//==0 -> b is colinear with a
-//also returns area of paralelogram form by vectors
-ll cross(ii a, ii b) {
-    return a.F * b.S - a.S * b.F;
-}
-ll dot(ii a, ii b) {
-    return a.F * b.F + a.S * b.S;
-}
-\end{code}
-\subsection{Point in Poly}
-\begin{code}
-//TODO implement cross product
-bool pointInLine(ii a, ii s, ii ed) {
-    ii l = ii(s.F - a.F, s.S - a.S);
-    ii r = ii(ed.F - a.F, ed.S - a.S);
-    if(cross(l, r) == 0 and min(s.F, ed.F) <= a.F and a.F <= max(s.F, ed.F)
-        and min(s.S, ed.S) <= a.S and a.S <= max(s.S, ed.S)) 
-        return true;
-    return false;
-}
-//0 -> outside, 1 -> inside, 2 -> boundary
-int insidePoly(vector<ii> poly, ii point) {
-    poly.pb(poly[0]);
-    int cont = 0;
-    forn(i, poly.size() - 1) {
-        if(pointInLine(point, poly[i], poly[i + 1])) return 2;
-        if(poly[i].F <= point.F and point.F < poly[i + 1].F) {
-            ii l = ii(poly[i].F - point.F, poly[i].S - point.S);
-            ii r = ii(poly[i + 1].F - point.F, poly[i + 1].S - point.S);
-            if(cross(l, r) < 0) cont++;
-        }
-        else if(poly[i + 1].F <= point.F and point.F < poly[i].F) {
-            ii r = ii(poly[i].F - point.F, poly[i].S - point.S);
-            ii l = ii(poly[i + 1].F - point.F, poly[i + 1].S - point.S);
-            if(cross(l, r) < 0) cont++;
-        }
-    }
-    if(cont%2 == 0) return 0;
-    return 1;
-}
-\end{code}
 \subsection{Min Euclid Dist}
 \begin{code}
 ll distSqrd(ii a, ii b) {
@@ -1887,47 +1874,7 @@ ll minEuclidDist(vector<ii> p) {
     return minDistSqr;
 }
 \end{code}
-\subsection{Segment intersection}
-\begin{code}
-ii toVect(ii a, ii b) {
-    return{b.F - a.F, b.S - a.S};
-} 
-bool segmentIntersection(ii a, ii b, ii c, ii d){
-    ll v1 = cross(toVect(c, a), toVect(c, b));
-    ll v2 = cross(toVect(d, a), toVect(d, b));
-    if((v1 < 0 and v2 < 0) or (v1 > 0 and v2 > 0)) {
-        return false;
-    }
-    if(v1 == 0 and v2 == 0) {
-        if((min(a.F, b.F) <= c.F and c.F <= max(a.F, b.F)) and
-            (min(a.S, b.S) <= c.S and c.S <= max(a.S, b.S))) {
-                return true;
-            }
-        if((min(a.x, b.x) <= d.x and d.x <= max(a.x, b.x)) and
-            (min(a.y, b.y) <= d.y and d.y <= max(a.y, b.y))) {
-                return true;
-            }
-        if((min(c.x, d.x) <= a.x and a.x <= max(c.x, d.x)) and
-            (min(c.y, d.y) <= a.y and a.y <= max(c.y, d.y))) {
-                return true;
-            }
-        if((min(c.x, d.x) <= b.x and b.x <= max(c.x, d.x)) and
-            (min(c.y, d.y) <= b.y and b.y <= max(c.y, d.y))) {
-                return true;
-            }
-        return false;
-    }
-    
-    v1 = cross(toVect(a, c), toVect(a, d));
-    v2 = cross(toVect(b, c), toVect(b, d));
-    
-    if((v1 < 0 and v2 < 0) or (v1 > 0 and v2 > 0)) {
-        return false;
-    }
-    return true;
-}
-\end{code}
-\section{Estaba entre el Greedy y la DP}
+\section{Estaba entre el Goloso y la DP}
 \subsection{Chull Trick Dynamic}
 Find max/min value on set of lines, allows dynamic insertion.\\
 This implementation finds max, for min insert $-mx - b$, of course the result of eval will be $-res$\\
@@ -2089,7 +2036,7 @@ public:
 \section{El Himno nacional}
 Me encontraba en dif\'icil situaci\'on\\
 En una prueba muy dif\'icil de mi vida \\
-Estaba entre el Greedy y la DP \\
+Estaba entre el Goloso y la DP \\
 Mirando el F que no me sal\'ia  \\
 Yo no queria una prueba normal \\
 No me gustaban los que eran de geometr\'ia \\
