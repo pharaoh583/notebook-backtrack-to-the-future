@@ -17,14 +17,14 @@ struct STree {
         else upd(p<<1|1, m + 1, r, pos, val);
         st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    T query(int p, int l, int r, int a, int b) { //query of [l, r]
-        if(l > b or r < a) return NEUT;
-        if(a <= l and r <= b) return st[p];
+    T query(int p, int l, int r, int L, int R) { //query of [l, r]
+        if(R < l or r < L) return NEUT;
+        if(L >= l and r <= R) return st[p];
         int m = (l + r)/2;
-        return oper(query(p<<1, l, m, a, b), query(p<<1|1, m + 1, r, a, b));
+        return oper(query(p<<1, l, m, L, R), query(p<<1|1, m + 1, r, L, R));
     }
 
     void init(vector<T>& a){init(1, 0, n - 1, a);}
     void upd(int p, T val) {upd(1, 0, n - 1, p, val);}
-    T query(int a, int b) {return query(1, 0, n - 1, a, b);}
+    T query(int L, int R) {return query(1, 0, n - 1, L, R);}
 };

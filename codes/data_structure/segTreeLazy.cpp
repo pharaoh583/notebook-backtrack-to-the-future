@@ -1,41 +1,44 @@
+#define NEUT 0
+typedef int T;
+T oper(T a, T b) {return a + b;}
 struct STree { // example: range sum with range addition
-	vector<int> st,lazy;int n;
-	STree(int n): st(4*n+5,0), lazy(4*n+5,0), n(n) {}
-	void init(int k, int s, int e, int *a){
-		lazy[k]=0;  // lazy neutral element
-		if(s+1==e){st[k]=a[s];return;}
-		int m=(s+e)/2;
-		init(2*k,s,m,a);init(2*k+1,m,e,a);
-		st[k]=st[2*k]+st[2*k+1]; // operation
+	vector<T> st,lazy;int n;
+	STree(int n): st(4*n+5,NEUT), lazy(4*n+5,NEUT), n(n) {}
+	void init(int p, int l, int r, vector<T>& a){
+		lazy[p]=0;  // lazy neutral element
+		if(l==r){st[p]=a[l];return;}
+		int m=(l+r)/2;
+		init(p<<1,l,m,a);init(p<<1|1,m+1,r,a);
+		st[p]=oper(st[p<<1],st[p<<1|1]);
 	}
-	void push(int k, int s, int e){
-		if(!lazy[k])return; // if neutral, nothing to do
-		st[k]+=(e-s)*lazy[k]; // update st according to lazy
-		if(s+1<e){ // propagate to children
-			lazy[2*k]+=lazy[k];
-			lazy[2*k+1]+=lazy[k];
+	void push(int p, int l, int r){
+		if(!lazy[p])return; // if neutral, nothing to do
+		st[p]+=(r-l+1)*lazy[p]; // update st according to lazy
+		if(l<r){ // propagate to children
+			lazy[p<<1]+=lazy[p];
+			lazy[p<<1|1]+=lazy[p];
 		}
-		lazy[k]=0; // clear node lazy
+		lazy[p]=0; // clear node lazy
 	}
-	void upd(int k, int s, int e, int a, int b, int v){
-		push(k,s,e);
-		if(s>=b||e<=a)return;
-		if(s>=a&&e<=b){
-			lazy[k]+=v; // accumulate lazy
-			push(k,s,e);return;
+	void upd(int p, int l, int r, int L, int R, T v){
+		push(p,l,r);
+		if(R < l or r < L)return; //breakCondition() change for segTree beats
+		if(L<=l and r<=R){ //tagCondition()
+			lazy[p]+=v; // accumulate lazy
+			push(p,l,r);return;
 		}
-		int m=(s+e)/2;
-		upd(2*k,s,m,a,b,v);upd(2*k+1,m,e,a,b,v);
-		st[k]=st[2*k]+st[2*k+1]; // operation
+		int m=(l+r)/2;
+		upd(p<<1,l,m,L,R,v);upd(p<<1|1,m + 1,r,L,R,v);
+		st[p]=oper(st[p<<1],st[p<<1|1]); // updateOperation()
 	}
-	int query(int k, int s, int e, int a, int b){
-		if(s>=b||e<=a)return 0; // operation neutral
-		push(k,s,e);
-		if(s>=a&&e<=b)return st[k];
-		int m=(s+e)/2;
-		return query(2*k,s,m,a,b)+query(2*k+1,m,e,a,b); // operation
+	T query(int p, int l, int r, int L, int R){ //supports [l, r] operations
+		if(R < l or r < L)return NEUT; // operation neutral
+		push(p,l,r);
+		if(L<=l and r<=R)return st[p];
+		int m=(l+r)/2;
+		return oper(query(p<<1,l,m,L,R),query(p<<1|1,m+1,r,L,R)); // operation
 	}
-	void init(int *a){init(1,0,n,a);}
-	void upd(int a, int b, int v){upd(1,0,n,a,b,v);}
-	int query(int a, int b){return query(1,0,n,a,b);}
+	void init(vector<T>& a){init(1,0,n - 1,a);}
+	void upd(int L, int R, T v){upd(1,0,n - 1,L,R,v);}
+	T query(int L, int R){return query(1,0,n - 1,L,R);}
 }; // usage: STree rmq(n);rmq.init(x);rmq.upd(s,e,v);rmq.query(s,e);
