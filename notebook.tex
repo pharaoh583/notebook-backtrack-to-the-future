@@ -1137,7 +1137,7 @@ void manacher(string& s){
 \subsection{Dinic? No era Dinitz??}
 Runs in $O(EV^2)$
 \begin{code}
-// to check if edge is saturated cap == 0
+// to check if edge is saturated cap == 0   
 struct edge { int v, cap, inv, flow; };
 struct network {
   int n, s, t;
@@ -1200,7 +1200,27 @@ struct network {
     }
     return mc;
   }
+  vector<int> minVertexCover(int aSize, int bSize) {
+        //min vertex cover in bipartite graph.
+        //a group should be from [1, a]
+        //b group should be from [a + 1, a + b]
+        //bfs get As and Bs the other nodes are At and Bt
+        //which are unreachable from s in residual graph
+        //the the minVertexCover is At U Bs
+        bfs();
+        vector<int> mvc;
+        forn(i, n) {
+            if(lvl[i] == -1 and i >= 1 and i <= aSize) {
+                mvc.pb(i);
+            }
+            else if(lvl[i] != 1 and i >= aSize + 1 and i <= aSize + bSize){
+                mvc.pb(i);
+            }
+        }
+        return mvc;
+    }
 };
+
 \end{code}
 \subsection{Hungarian Matching}
 Runs in $O(V^3)$ \\
