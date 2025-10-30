@@ -297,8 +297,21 @@ ll query(int x, int y, STree& rmq){
 		y=dad[head[y]];
 	}
 	if(dep[x]>dep[y])swap(x,y); // now x is lca
+	//if queries are over edges ignore lca
+	// if(x!=y) r=oper(r,rmq.query(pos[x]+1,pos[y]));
 	r=oper(r,rmq.query(pos[x],pos[y]));
 	return r;
+}
+void update_path(int x, int y, ll val, STree &rmq) {
+    while (head[x] != head[y]) {
+        if (dep[head[x]] > dep[head[y]]) swap(x, y);
+        rmq.upd(pos[head[y]], pos[y], val); // update full heavy path
+        y = dad[head[y]];
+    }
+    if (dep[x] > dep[y]) swap(x, y);
+	//if queries are over edges ignore lca
+	//if(x!=y) rmq.upd(pos[x]+1,pos[y],val);
+    rmq.upd(pos[x], pos[y], val); // final segment (same chain)
 }
 // for creation call hld_init then create z such that z[pos[i]] = cost[i]
 // init SegTree with z, then you can start doing queries
@@ -366,16 +379,15 @@ struct STree {
         else upd(p<<1|1, m + 1, r, pos, val);
         st[p] = oper(st[p<<1], st[p<<1|1]);
     }
-    T query(int p, int l, int r, int a, int b) { //query of [l, r]
-        if(l > b or r < a) return NEUT;
-        if(a <= l and r <= b) return st[p];
+    T query(int p, int l, int r, int L, int R) { //query of [l, r]
+        if(R < l or r < L) return NEUT;
+        if(L >= l and r <= R) return st[p];
         int m = (l + r)/2;
-        return oper(query(p<<1, l, m, a, b), query(p<<1|1, m + 1, r, a, b));
+        return oper(query(p<<1, l, m, L, R), query(p<<1|1, m + 1, r, L, R));
     }
-
     void init(vector<T>& a){init(1, 0, n - 1, a);}
     void upd(int p, T val) {upd(1, 0, n - 1, p, val);}
-    T query(int a, int b) {return query(1, 0, n - 1, a, b);}
+    T query(int L, int R) {return query(1, 0, n - 1, L, R);}
 };
 \end{code}
 \subsection{SegTree con lazy}

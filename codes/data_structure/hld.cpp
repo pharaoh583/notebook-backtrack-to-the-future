@@ -29,8 +29,21 @@ ll query(int x, int y, STree& rmq){
 		y=dad[head[y]];
 	}
 	if(dep[x]>dep[y])swap(x,y); // now x is lca
+	//if queries are over edges ignore lca
+	// if(x!=y) r=oper(r,rmq.query(pos[x]+1,pos[y]));
 	r=oper(r,rmq.query(pos[x],pos[y]));
 	return r;
+}
+void update_path(int x, int y, ll val, STree &rmq) {
+    while (head[x] != head[y]) {
+        if (dep[head[x]] > dep[head[y]]) swap(x, y);
+        rmq.upd(pos[head[y]], pos[y], val); // update full heavy path
+        y = dad[head[y]];
+    }
+    if (dep[x] > dep[y]) swap(x, y);
+	//if queries are over edges ignore lca
+	//if(x!=y) rmq.upd(pos[x]+1,pos[y],val);
+    rmq.upd(pos[x], pos[y], val); // final segment (same chain)
 }
 // for creation call hld_init then create z such that z[pos[i]] = cost[i]
 // init SegTree with z, then you can start doing queries
