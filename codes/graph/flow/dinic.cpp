@@ -63,4 +63,23 @@ struct network {
     }
     return mc;
   }
+  vector<int> minVertexCover(int aSize, int bSize) {
+        //min vertex cover in bipartite graph.
+        //a group should be from [1, a]
+        //b group should be from [a + 1, a + b]
+        //bfs get As and Bs the other nodes are At and Bt
+        //which are unreachable from s in residual graph
+        //the the minVertexCover is At U Bs
+        bfs();
+        vector<int> mvc;
+        forn(i, n) {
+            if(lvl[i] == -1 and i >= 1 and i <= aSize) {
+                mvc.pb(i);
+            }
+            else if(lvl[i] != 1 and i >= aSize + 1 and i <= aSize + bSize){
+                mvc.pb(i);
+            }
+        }
+        return mvc;
+    }
 };
