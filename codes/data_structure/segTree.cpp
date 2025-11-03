@@ -19,7 +19,7 @@ struct STree {
     }
     T query(int p, int l, int r, int L, int R) { //query of [l, r]
         if(R < l or r < L) return NEUT;
-        if(L >= l and r <= R) return st[p];
+        if(L <= l and r <= R) return st[p];
         int m = (l + r)/2;
         return oper(query(p<<1, l, m, L, R), query(p<<1|1, m + 1, r, L, R));
     }
