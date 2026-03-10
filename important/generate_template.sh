@@ -16,4 +16,4 @@ else
 	exit
 fi
 
-vim $filename -c 28
+vim $filename -c 38
