@@ -30,6 +30,11 @@ void scc(){
 }
 // Only for 2SAT:
 void addor(int a, int b){g[neg(a)].pb(b);g[neg(b)].pb(a);}
+//(a or b) -> at least one of them must be true
+//(~a or b) -> if you choose a, you must choose b
+//(~a or ~b) -> cannot choose both
+//(~a or b) and (a or ~b) -> a and b must be equal
+//(a or a) a must be choosen
 bool satisf(int _nvar){
 	nvar=_nvar;n=MAXN;scc();
 	forn(i,nvar)if(cmp[i]==cmp[neg(i)])return false;
