@@ -1,15 +1,16 @@
 /// Complexity: O(|E|*|V|^2)
 /// Faster flow algorithm 
 // to check if edge is saturated cap == 0   
-struct edge { int v, cap, inv, flow; };
+typedef ll tf;
+struct edge { int v; tf cap; int inv; tf flow; };
 struct network {
   int n, s, t;
-  vector<int> lvl;
+  vi lvl;
   vector<vector<edge>> g;
   network(int n) : n(n), lvl(n), g(n) {}
-  void add_edge(int u, int v, int c) {
-    g[u].push_back({v, c, g[v].size(), 0});
-    g[v].push_back({u, 0, g[u].size()-1,c});
+  void add_edge(int u, int v, tf c) {
+    g[u].pb({v, c, g[v].size(), 0});
+    g[v].pb({u, 0, g[u].size()-1,c});
     // The following line is for undirected graphs
     // g[v].push_back({u, c, g[u].size()-1, 0});
   }
@@ -28,24 +29,25 @@ struct network {
     }
     return lvl[t] != -1;
   }
-  int dfs(int u, int nf) {
+  tf dfs(int u, tf nf) {
     if(u == t) return nf;
     int res = 0;
     for(auto &e : g[u]) {
       if(e.cap > 0 && lvl[e.v] == lvl[u]+1) {
-        int tf = dfs(e.v, min(nf, e.cap));
-        res += tf; nf -= tf; e.cap -= tf;
-        g[e.v][e.inv].cap += tf;
-        g[e.v][e.inv].flow -= tf;
-        e.flow += tf;
+        tf pushed = dfs(e.v, min(nf, e.cap));
+        res += pushed; nf -= pushed; e.cap -= pushed;
+        g[e.v][e.inv].cap += pushed;
+        g[e.v][e.inv].flow -= pushed;
+        e.flow += pushed;
         if(nf == 0) return res;
       }
     }
     if(!res) lvl[u] = -1;
     return res;
   }
-  int max_flow(int so, int si, int res = 0) {
+  tf max_flow(int so, int si, tf res = 0) {
     s = so; t = si;
+    //replace max value
     while(bfs()) res += dfs(s, INT_MAX);
     return res;
   }
@@ -63,7 +65,7 @@ struct network {
     }
     return mc;
   }
-  vector<int> minVertexCover(int aSize, int bSize) {
+  vi minVertexCover(int aSize, int bSize) {
         //min vertex cover in bipartite graph.
         //a group should be from [1, a]
         //b group should be from [a + 1, a + b]
@@ -71,7 +73,7 @@ struct network {
         //which are unreachable from s in residual graph
         //the the minVertexCover is At U Bs
         bfs();
-        vector<int> mvc;
+        vi mvc;
         forn(i, n) {
             if(lvl[i] == -1 and i >= 1 and i <= aSize) {
                 mvc.pb(i);
