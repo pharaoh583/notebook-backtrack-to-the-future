@@ -31,7 +31,7 @@ struct network {
   }
   tf dfs(int u, tf nf) {
     if(u == t) return nf;
-    int res = 0;
+    tf res = 0;
     for(auto &e : g[u]) {
       if(e.cap > 0 && lvl[e.v] == lvl[u]+1) {
         tf pushed = dfs(e.v, min(nf, e.cap));
