@@ -78,7 +78,7 @@ struct network {
             if(lvl[i] == -1 and i >= 1 and i <= aSize) {
                 mvc.pb(i);
             }
-            else if(lvl[i] != 1 and i >= aSize + 1 and i <= aSize + bSize){
+            else if(lvl[i] != -1 and i >= aSize + 1 and i <= aSize + bSize){
                 mvc.pb(i);
             }
         }
