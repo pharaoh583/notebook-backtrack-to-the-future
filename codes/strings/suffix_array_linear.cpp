@@ -54,7 +54,7 @@ void sais_core(int n, int m, const int* s, int* sa, char* type, int* lms, int* c
     induced_sort(lms + n1);
 }
  
-void constructSA(string& str, vector<int>& sa) { //O(n)
+void constructSA(string& str, vector<int>& sa) {
     vector<int> v(str.size());
     forn(i, str.size()) v[i] = str[i] - 'a';
     vector<int> s(v);
