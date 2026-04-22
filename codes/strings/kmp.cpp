@@ -15,7 +15,7 @@ void compute_automaton(string s, vector<vi>& aut) {
     vi pi = prefix_function(s);
     aut.assign(n, vi(26));
     forn(i, n) {
-        forn(j, 26) {
+        forn(c, 26) {
             if (i > 0 && 'a' + c != s[i])
                 aut[i][c] = aut[pi[i-1]][c];
             else
