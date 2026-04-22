@@ -1,6 +1,6 @@
-vector<int> prefix_function(string s) {
+vi prefix_function(string s) {
     int n = s.size();
-    vector<int> pi(n);
+    vi pi(n);
     forsn(i, 1, n) {
         int j = pi[i-1];
         while (j > 0 && s[i] != s[j]) j = pi[j-1];
@@ -9,7 +9,7 @@ vector<int> prefix_function(string s) {
     }
     return pi;
 }
-void compute_automaton(string s, vector<vector<int>>& aut) {
+void compute_automaton(string s, vector<vi>& aut) {
     s += '#';
     int n = s.size();
     vi pi = prefix_function(s);
