@@ -1,34 +1,18 @@
-vi s;
-vi g[200001];
-int n;
-vector<bool> disabled;
-int treeSize(int u, int p) {
-    int sz = 1;
-    for(auto v : g[u]) {
-        if(v != p and !disabled[v]) {
-            sz += treeSize(v, u);
-        }
-    }
-    return s[u] = sz;
-} 
-int findCentroid(int u, int size) {
-    for(auto v : g[u]) {
-        if(disabled[v]) continue;
-        if(s[v]*2 > size) {
-            s[u] -= s[v];  
-            return findCentroid(v, size);
-        }
-    }
-    return u;
+vi g[maxn];int n;
+bool tk[maxn];
+int fat[maxn]; // father in centroid decomposition
+int szt[maxn]; // size of subtree
+int calcsz(int x, int f){
+	szt[x]=1;
+	for(auto y:g[x])if(y!=f&&!tk[y])szt[x]+=calcsz(y,x);
+	return szt[x];
 }
-ll centroidDecomposition(int provRoot = 0) {
-    int sz = treeSize(provRoot, provRoot);
-    //TODO: check if you can end early based on size
-    int centroid = findCentroid(provRoot, sz);
-    ll res = 0;
-    //TODO: implement logic to process centroid
-    disabled[centroid] = true;
-    //TODO: clear data if necessary
-    return res;
+void cdfs(int x=0, int f=-1, int sz=-1){ // O(nlogn)
+	if(sz<0)sz=calcsz(x,-1);
+	for(auto y:g[x])if(!tk[y]&&szt[y]*2>=sz){
+		szt[x]=0;cdfs(y,f,sz);return;
+	}
+	tk[x]=true;fat[x]=f;
+	for(auto y:g[x])if(!tk[y])cdfs(y,x);
 }
-//TODO: start disabled and s
+void centroid(){memset(tk,false,sizeof(tk));cdfs();}
