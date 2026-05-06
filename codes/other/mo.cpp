@@ -35,7 +35,7 @@ struct Query {
 //TODO: find way to get answer
 vector<int> mo_s_algorithm(vector<Query> queries) {
     vector<int> answers(queries.size());
-    sort(all(queries);
+    sort(all(queries));
     // TODO: initialize data structure
     int cur_l = 0;
     int cur_r = -1;
