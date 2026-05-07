@@ -1,7 +1,7 @@
 import os
 
 # --- Configuration ---
-SRC_DIR = "src"
+SRC_DIR = "codes"
 OUTPUT_TEX = "notebook_generated.tex"
 
 LATEX_HEADER = r"""\documentclass[10pt, landscape, twocolumn, a4paper, notitlepage]{article}
@@ -173,46 +173,46 @@ def generate_notebook():
     with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
         out.write(LATEX_HEADER)
         
-        # # Sort categories alphabetically
-        # categories = sorted([d for d in os.listdir(SRC_DIR) if os.path.isdir(os.path.join(SRC_DIR, d))])
+        # Sort categories alphabetically
+        categories = sorted([d for d in os.listdir(SRC_DIR) if os.path.isdir(os.path.join(SRC_DIR, d))])
         
-        # for category in categories:
-        #     cat_path = os.path.join(SRC_DIR, category)
-        #     all_files = os.listdir(cat_path)
+        for category in categories:
+            cat_path = os.path.join(SRC_DIR, category)
+            all_files = os.listdir(cat_path)
             
-        #     # Step 1: Gather unique base names (ignoring extensions)
-        #     base_names = set()
-        #     for f in all_files:
-        #         if f.endswith(".cpp") or f.endswith(".tex"):
-        #             # Split 'cht.cpp' into 'cht'
-        #             base_name = os.path.splitext(f)[0]
-        #             base_names.add(base_name)
+            # Step 1: Gather unique base names (ignoring extensions)
+            base_names = set()
+            for f in all_files:
+                if f.endswith(".cpp") or f.endswith(".tex"):
+                    # Split 'cht.cpp' into 'cht'
+                    base_name = os.path.splitext(f)[0]
+                    base_names.add(base_name)
             
-        #     base_names = sorted(list(base_names))
+            base_names = sorted(list(base_names))
             
-        #     # Step 2: Only create a section if there are valid files inside
-        #     if not base_names:
-        #         continue
+            # Step 2: Only create a section if there are valid files inside
+            if not base_names:
+                continue
                 
-        #     out.write(f"\\section{{{category.replace('_', ' ')}\n")
+            out.write(f"\\section{{{category.replace('_', ' ')}}}\n")
             
-        #     # Step 3: Process each unique base name
-        #     for base_name in base_names:
-        #         title = base_name.replace("_", " ").title()
-        #         out.write(f"\\subsection{{{title}}}\n")
+            # Step 3: Process each unique base name
+            for base_name in base_names:
+                title = base_name.replace("_", " ").title()
+                out.write(f"\\subsection{{{title}}}\n")
                 
-        #         # Check for an annotation file (.tex)
-        #         tex_file_path = os.path.join(cat_path, f"{base_name}.tex")
-        #         if os.path.exists(tex_file_path):
-        #             with open(tex_file_path, "r", encoding="utf-8") as tf:
-        #                 out.write(tf.read().strip() + "\n\n")
+                # Check for an annotation file (.tex)
+                tex_file_path = os.path.join(cat_path, f"{base_name}.tex")
+                if os.path.exists(tex_file_path):
+                    with open(tex_file_path, "r", encoding="utf-8") as tf:
+                        out.write(tf.read().strip() + "\n\n")
                 
-        #         # Check for a code file (.cpp)
-        #         cpp_file_path = os.path.join(cat_path, f"{base_name}.cpp")
-        #         if os.path.exists(cpp_file_path):
-        #             # We use the relative path so pdflatex can find it
-        #             rel_cpp_path = f"{SRC_DIR}/{category}/{base_name}.cpp"
-        #             out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
+                # Check for a code file (.cpp)
+                cpp_file_path = os.path.join(cat_path, f"{base_name}.cpp")
+                if os.path.exists(cpp_file_path):
+                    # We use the relative path so pdflatex can find it
+                    rel_cpp_path = f"{SRC_DIR}/{category}/{base_name}.cpp"
+                    out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
 
         out.write(LATEX_FOOTER)
     print(f"Successfully generated {OUTPUT_TEX}")
