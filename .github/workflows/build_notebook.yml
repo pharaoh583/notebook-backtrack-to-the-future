@@ -24,7 +24,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y fonts-ipafont
 
-      - name: Compile LaTeX to PDF
+      - name: Compile LaTeX to PDF (Pass 1)
+        continue-on-error: true
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: notebook_generated.tex
+          compiler: xelatex
+
+      # Ensure pages and index is generated correctly
+      - name: Compile LaTeX to PDF (Pass 2)
         uses: xu-cheng/latex-action@v3
         with:
           root_file: notebook_generated.tex
