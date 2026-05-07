@@ -1,6 +1,3 @@
-/// Complexity: O(|E|*sqrt(|V|))
-/// Algorithm form max matching in better complexity
-
 struct mbm {
   vector<vector<int>> g;
   vector<int> d, match;

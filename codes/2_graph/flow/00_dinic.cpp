@@ -1,6 +1,3 @@
-/// Complexity: O(|E|*|V|^2)
-/// Faster flow algorithm 
-// to check if edge is saturated cap == 0   
 typedef ll tf;
 struct edge { int v; tf cap; int inv; tf flow; };
 struct network {
@@ -10,6 +7,7 @@ struct network {
   network(int n) : n(n), lvl(n), g(n) {}
   void add_edge(int u, int v, tf c) {
     g[u].pb({v, c, g[v].size(), 0});
+    // This line is for directed graphs
     g[v].pb({u, 0, g[u].size()-1,c});
     // The following line is for undirected graphs
     // g[v].push_back({u, c, g[u].size()-1, 0});

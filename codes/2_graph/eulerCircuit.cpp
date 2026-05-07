@@ -1,5 +1,4 @@
-//O(E)
-//the graph shoud store edge as the second parameter of a pair
+
 bool changeStart = false;
 int start = 0;
 deque<int> eulerCircuit;
