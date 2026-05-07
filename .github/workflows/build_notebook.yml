@@ -22,11 +22,11 @@ jobs:
       - name: Compile LaTeX to PDF
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: notebook-generated.tex
+          root_file: notebook_generated.tex
           compiler: pdflatex
 
       - name: Upload PDF Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Team-Notebook
-          path: notebook.pdf
+          path: notebook_generated.tex

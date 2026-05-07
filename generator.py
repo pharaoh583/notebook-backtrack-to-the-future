@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import date
 
 # --- Configuration ---
 SRC_DIR = "codes"
@@ -177,21 +178,23 @@ def clean_title(name):
     Removes leading numbers and separators (e.g., '01_Math' -> 'Math'),
     replaces remaining underscores with spaces, and applies Title Case.
     """
-    # ^\d+ matches numbers at the start. 
-    # [\-_ ]* matches any underscores, dashes, or spaces right after the numbers.
     cleaned = re.sub(r'^\d+[\-_ ]*', '', name)
     return cleaned.replace('_', ' ').title()
 
 def generate_notebook():
     with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
-        out.write(LATEX_HEADER)
+        # Get today's date formatted nicely (e.g., "Oct 25, 2023")
+        # You can change the format string to "%Y-%m-%d" if you prefer standard metric dates
+        current_date = date.today().strftime("%b %d, %Y")
         
-        # sorted(os.walk()) ensures folders are processed alphabetically (respecting your number prefixes)
+        # Replace the placeholder in the header with the actual date
+        final_header = LATEX_HEADER.replace("__DATE__", current_date)
+        out.write(final_header)
+        
         for root, dirs, files in sorted(os.walk(SRC_DIR)):
             if root == SRC_DIR:
                 continue
                 
-            # Gather unique base names in this specific subfolder
             base_names = set()
             for f in files:
                 if f.endswith(".cpp") or f.endswith(".tex"):
@@ -200,8 +203,6 @@ def generate_notebook():
             if not base_names:
                 continue
                 
-            # Create Section title from the relative path
-            # Split the path into folder names, clean each folder name, and join with " / "
             rel_path = os.path.relpath(root, SRC_DIR)
             folder_parts = rel_path.split(os.sep)
             clean_parts = [clean_title(part) for part in folder_parts]
@@ -209,26 +210,22 @@ def generate_notebook():
             section_title = " / ".join(clean_parts)
             out.write(f"\\section{{{section_title}}}\n")
             
-            # Process the files alphabetically (respecting their prefixes)
             for base_name in sorted(list(base_names)):
-                # Clean the file name for the subsection title
                 title = clean_title(base_name)
                 out.write(f"\\subsection{{{title}}}\n")
                 
-                # Add Annotation (.tex)
                 tex_file_path = os.path.join(root, f"{base_name}.tex")
                 if os.path.exists(tex_file_path):
                     with open(tex_file_path, "r", encoding="utf-8") as tf:
                         out.write(tf.read().strip() + "\n\n")
                 
-                # Add Code (.cpp)
                 cpp_file_path = os.path.join(root, f"{base_name}.cpp")
                 if os.path.exists(cpp_file_path):
                     rel_cpp_path = cpp_file_path.replace(os.sep, '/')
                     out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
 
         out.write(LATEX_FOOTER)
-    print(f"Successfully generated {OUTPUT_TEX}")
+    print(f"Successfully generated {OUTPUT_TEX} for {current_date}")
 
 if __name__ == "__main__":
     generate_notebook()
