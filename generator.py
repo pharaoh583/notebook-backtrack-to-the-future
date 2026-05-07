@@ -1,4 +1,5 @@
 import os
+import re
 
 # --- Configuration ---
 SRC_DIR = "codes"
@@ -169,35 +170,47 @@ Go back into your endless dream
 \end{document}
 """
 
+def clean_title(name):
+    """
+    Removes leading numbers and separators (e.g., '01_Math' -> 'Math'),
+    replaces remaining underscores with spaces, and applies Title Case.
+    """
+    # ^\d+ matches numbers at the start. 
+    # [\-_ ]* matches any underscores, dashes, or spaces right after the numbers.
+    cleaned = re.sub(r'^\d+[\-_ ]*', '', name)
+    return cleaned.replace('_', ' ').title()
+
 def generate_notebook():
     with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
         out.write(LATEX_HEADER)
         
-        # sorted(os.walk()) ensures folders are processed alphabetically
+        # sorted(os.walk()) ensures folders are processed alphabetically (respecting your number prefixes)
         for root, dirs, files in sorted(os.walk(SRC_DIR)):
-            # Skip the base 'src' folder itself if it holds no direct files
             if root == SRC_DIR:
                 continue
                 
-            # Step 1: Gather unique base names in this specific subfolder
+            # Gather unique base names in this specific subfolder
             base_names = set()
             for f in files:
                 if f.endswith(".cpp") or f.endswith(".tex"):
                     base_names.add(os.path.splitext(f)[0])
             
-            # If this subfolder has no code/tex files, skip it
             if not base_names:
                 continue
                 
-            # Step 2: Create a beautiful Section title from the relative path
-            # e.g., "src/Graphs/Flows" -> "Graphs / Flows"
+            # Create Section title from the relative path
+            # Split the path into folder names, clean each folder name, and join with " / "
             rel_path = os.path.relpath(root, SRC_DIR)
-            section_title = rel_path.replace(os.sep, " / ").replace("_", " ")
+            folder_parts = rel_path.split(os.sep)
+            clean_parts = [clean_title(part) for part in folder_parts]
+            
+            section_title = " / ".join(clean_parts)
             out.write(f"\\section{{{section_title}}}\n")
             
-            # Step 3: Process the files alphabetically
+            # Process the files alphabetically (respecting their prefixes)
             for base_name in sorted(list(base_names)):
-                title = base_name.replace("_", " ").title()
+                # Clean the file name for the subsection title
+                title = clean_title(base_name)
                 out.write(f"\\subsection{{{title}}}\n")
                 
                 # Add Annotation (.tex)
@@ -209,8 +222,6 @@ def generate_notebook():
                 # Add Code (.cpp)
                 cpp_file_path = os.path.join(root, f"{base_name}.cpp")
                 if os.path.exists(cpp_file_path):
-                    # LaTeX strictly requires forward slashes for file paths, 
-                    # even if you are generating this on Windows.
                     rel_cpp_path = cpp_file_path.replace(os.sep, '/')
                     out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
 
