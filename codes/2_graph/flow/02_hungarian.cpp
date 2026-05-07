@@ -1,6 +1,3 @@
-/// Complexity: O(|V|^3)
-/// Algorithm for Min cost max flow in bipartite graph
-
 typedef int type;
 struct matching_weighted {
   int l, r; //n m

@@ -1,0 +1,32 @@
+name: Build Team Notebook
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate LaTeX file
+        run: python generator.py
+
+      - name: Compile LaTeX to PDF
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: notebook.tex
+          compiler: pdflatex
+
+      - name: Upload PDF Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Team-Notebook
+          path: notebook.pdf

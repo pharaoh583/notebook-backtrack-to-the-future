@@ -1,4 +1,3 @@
-// to check if edge is saturated cap == f
 typedef ll tf;
 typedef ll tc;
 const tf INFFLOW = 1e9;

@@ -1,7 +1,3 @@
-//original: https://github.com/mhunicken/icpc-team-notebook-el-vasito/blob/master/data_structures/treap_implicit.cpp
-
-// example that supports range reverse and addition updates, and range sum query
-// (commented parts are specific to this  problem)
 typedef struct item *pitem;
 struct item {
 	int pr,cnt,val;

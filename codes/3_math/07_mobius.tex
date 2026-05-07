@@ -1,0 +1,17 @@
+Count numbers coprime to n; $\varphi(n)$\\
+if n is prime then $\varphi(n) = n - 1$\\
+if n is a power of a prime then $\varphi(p^k) = p^k - p^(k-1)$\\
+\\
+Count divisors of n; $\sigma(n)$\\
+if n is a prime to the power of k $\sigma(n) = k + 1$\\
+\\
+Mobius function is defined as: \\
+$\mu(n) = \threepartdef
+{1}      {n=1}
+{0}      {a^2 | n \mbox{ for some } a > 1}
+{(-1)^r} {n \mbox{ has } r \mbox{ distinct prime factors}}$\\
+\\
+These three are multiplicative functions\\
+Then, the mobius invertion is:\\
+if $g(n) = \sum_{d|n} f(d)$ \\
+then $f(n) = \sum_{d|n} \mu(d)g(\frac{n}{d})$

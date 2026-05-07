@@ -1,3 +1,4 @@
+
 inline int64_t hilbertOrder(int x, int y, int pow, int rotate) {
     if (pow == 0) return 0;
     int hpow = 1 << (pow-1);
