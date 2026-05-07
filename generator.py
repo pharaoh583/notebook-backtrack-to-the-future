@@ -79,6 +79,7 @@ LATEX_HEADER = r"""\documentclass[10pt, landscape, twocolumn, a4paper, notitlepa
 		\end{array}
 	\right.
 }
+\newcommand{\nbtitle}[1]{\begin{center}\Large\textbf{#1}\end{center}\vspace{1.5ex}}
 
 \begin{document}
 
