@@ -1,4 +1,3 @@
-//returns x such that a^x = b (mod m) or -1 if inexistent
 ll discrete_log(ll a,ll b,ll m) {
     a%=m, b%=m;
     if(b == 1) return 0;

@@ -173,45 +173,45 @@ def generate_notebook():
     with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
         out.write(LATEX_HEADER)
         
-        # Sort categories alphabetically
-        categories = sorted([d for d in os.listdir(SRC_DIR) if os.path.isdir(os.path.join(SRC_DIR, d))])
-        
-        for category in categories:
-            cat_path = os.path.join(SRC_DIR, category)
-            all_files = os.listdir(cat_path)
-            
-            # Step 1: Gather unique base names (ignoring extensions)
+        # sorted(os.walk()) ensures folders are processed alphabetically
+        for root, dirs, files in sorted(os.walk(SRC_DIR)):
+            # Skip the base 'src' folder itself if it holds no direct files
+            if root == SRC_DIR:
+                continue
+                
+            # Step 1: Gather unique base names in this specific subfolder
             base_names = set()
-            for f in all_files:
+            for f in files:
                 if f.endswith(".cpp") or f.endswith(".tex"):
-                    # Split 'cht.cpp' into 'cht'
-                    base_name = os.path.splitext(f)[0]
-                    base_names.add(base_name)
+                    base_names.add(os.path.splitext(f)[0])
             
-            base_names = sorted(list(base_names))
-            
-            # Step 2: Only create a section if there are valid files inside
+            # If this subfolder has no code/tex files, skip it
             if not base_names:
                 continue
                 
-            out.write(f"\\section{{{category.replace('_', ' ')}}}\n")
+            # Step 2: Create a beautiful Section title from the relative path
+            # e.g., "src/Graphs/Flows" -> "Graphs / Flows"
+            rel_path = os.path.relpath(root, SRC_DIR)
+            section_title = rel_path.replace(os.sep, " / ").replace("_", " ")
+            out.write(f"\\section{{{section_title}}}\n")
             
-            # Step 3: Process each unique base name
-            for base_name in base_names:
+            # Step 3: Process the files alphabetically
+            for base_name in sorted(list(base_names)):
                 title = base_name.replace("_", " ").title()
                 out.write(f"\\subsection{{{title}}}\n")
                 
-                # Check for an annotation file (.tex)
-                tex_file_path = os.path.join(cat_path, f"{base_name}.tex")
+                # Add Annotation (.tex)
+                tex_file_path = os.path.join(root, f"{base_name}.tex")
                 if os.path.exists(tex_file_path):
                     with open(tex_file_path, "r", encoding="utf-8") as tf:
                         out.write(tf.read().strip() + "\n\n")
                 
-                # Check for a code file (.cpp)
-                cpp_file_path = os.path.join(cat_path, f"{base_name}.cpp")
+                # Add Code (.cpp)
+                cpp_file_path = os.path.join(root, f"{base_name}.cpp")
                 if os.path.exists(cpp_file_path):
-                    # We use the relative path so pdflatex can find it
-                    rel_cpp_path = f"{SRC_DIR}/{category}/{base_name}.cpp"
+                    # LaTeX strictly requires forward slashes for file paths, 
+                    # even if you are generating this on Windows.
+                    rel_cpp_path = cpp_file_path.replace(os.sep, '/')
                     out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
 
         out.write(LATEX_FOOTER)
