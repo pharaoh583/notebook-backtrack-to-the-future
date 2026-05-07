@@ -1,0 +1,16 @@
+The cli command \texttt{md5sum} is used to validate if the template was written correctly. 
+
+Write the one-liner below without line breaks and save it as \texttt{hash.sh}, and run \texttt{chmod +x hash.sh} to make it executable. vai luan!
+
+\begin{lstlisting}[language=bash]
+sed -n $2','$3' p' $1 | cpp -dD -P -fpreprocessed | tr -d '[:space:]' | md5sum | cut -c-6
+\end{lstlisting}
+
+To get the hash in \texttt{file.cpp} between lines \texttt{<start>} and \texttt{<end>}, run:
+
+\begin{lstlisting}[language=bash]
+./hash.sh file.cpp <start> <end>
+\end{lstlisting}
+
+Hash is made by scope, delimited by the curly brackets (\texttt{\{} and \texttt{\}}). 
+The empty hash is \texttt{d41d8} while the md5sum of \texttt{hash.sh} is \texttt{9cd12}.

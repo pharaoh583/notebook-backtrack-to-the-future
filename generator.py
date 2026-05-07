@@ -1,10 +1,13 @@
 import os
 import re
+import shutil
+import subprocess
 from datetime import date
 
 # --- Configuration ---
 SRC_DIR = "codes"
 OUTPUT_TEX = "notebook_generated.tex"
+TMP_DIR = "build_tmp"
 
 LATEX_HEADER = r"""\documentclass[10pt, landscape, twocolumn, a4paper, notitlepage]{article}
 \usepackage{xeCJK}
@@ -182,13 +185,77 @@ def clean_title(name):
     cleaned = re.sub(r'^\d+[\-_ ]*', '', name)
     return cleaned.replace('_', ' ').title()
 
-def generate_notebook():
-    with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
-        # Get today's date formatted nicely (e.g., "Oct 25, 2023")
-        # You can change the format string to "%Y-%m-%d" if you prefer standard metric dates
-        current_date = date.today().strftime("%b %d, %Y")
+# --- Hashing ---
+def get_string_hash(content):
+    """
+    Pipes the code directly into the exact bash command used in the contest.
+    Guarantees 100% identical hashes.
+    """
+    command = "cpp -dD -P -fpreprocessed | tr -d '[:space:]' | md5sum | cut -c-6"
+    
+    try:
+        result = subprocess.run(
+            command, 
+            input=content.encode('utf-8'), 
+            shell=True, 
+            capture_output=True, 
+            check=True
+        )
+        return result.stdout.decode('utf-8').strip()
+    
+    except subprocess.CalledProcessError as e:
+        print(f"Error calculating hash: {e.stderr.decode('utf-8')}")
+        return "ERROR!"
+
+def process_cpp_file(src_path, dest_path):
+    """
+    Reads the C++ file, finds top-level scopes { }, hashes them, 
+    and appends the hash to the closing brace.
+    """
+    with open(src_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
         
-        # Replace the placeholder in the header with the actual date
+    out_lines = lines.copy()
+    brace_level = 0
+    start_idx = -1
+    
+    for i, line in enumerate(lines):
+        clean_line = re.sub(r'//.*', '', line)
+        clean_line = re.sub(r'/\*.*?\*/', '', clean_line)
+        clean_line = re.sub(r'".*?"', '', clean_line)
+        clean_line = re.sub(r"'.*?'", '', clean_line)
+        
+        for char in clean_line:
+            if char == '{':
+                if brace_level == 0:
+                    start_idx = i
+                brace_level += 1
+            elif char == '}':
+                brace_level -= 1
+                if brace_level == 0 and start_idx != -1:
+                    scope_content = "".join(lines[start_idx:i+1])
+                    scope_hash = get_string_hash(scope_content)
+                    
+                    if out_lines[i].endswith('\n'):
+                        out_lines[i] = out_lines[i].rstrip('\n') + f" // [{scope_hash}]\n"
+                    else:
+                        out_lines[i] = out_lines[i] + f" // [{scope_hash}]"
+                        
+                    start_idx = -1
+                    
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, 'w', encoding='utf-8') as f:
+        f.writelines(out_lines)
+        
+    return get_string_hash("".join(lines))
+
+def generate_notebook():
+    if os.path.exists(TMP_DIR):
+        shutil.rmtree(TMP_DIR)
+    os.makedirs(TMP_DIR)
+
+    with open(OUTPUT_TEX, "w", encoding="utf-8") as out:
+        current_date = date.today().strftime("%b %d, %Y")
         final_header = LATEX_HEADER.replace("__DATE__", current_date)
         out.write(final_header)
         
@@ -207,23 +274,37 @@ def generate_notebook():
             rel_path = os.path.relpath(root, SRC_DIR)
             folder_parts = rel_path.split(os.sep)
             clean_parts = [clean_title(part) for part in folder_parts]
-            
             section_title = " / ".join(clean_parts)
+            
             out.write(f"\\section{{{section_title}}}\n")
             
             for base_name in sorted(list(base_names)):
                 title = clean_title(base_name)
-                out.write(f"\\subsection{{{title}}}\n")
                 
                 tex_file_path = os.path.join(root, f"{base_name}.tex")
+                cpp_file_path = os.path.join(root, f"{base_name}.cpp")
+                
+                file_hash = None
+                rel_tmp_path = None
+                
+                if os.path.exists(cpp_file_path):
+                    rel_root = os.path.relpath(root, SRC_DIR)
+                    tmp_cpp_path = os.path.join(TMP_DIR, rel_root, f"{base_name}.cpp")
+                    
+                    file_hash = process_cpp_file(cpp_file_path, tmp_cpp_path)
+                    rel_tmp_path = tmp_cpp_path.replace(os.sep, '/')
+                
+                if file_hash:
+                    out.write(f"\\subsection{{{title} [\\texttt{{{file_hash}}}]}}\n")
+                else:
+                    out.write(f"\\subsection{{{title}}}\n")
+                    
                 if os.path.exists(tex_file_path):
                     with open(tex_file_path, "r", encoding="utf-8") as tf:
                         out.write(tf.read().strip() + "\n\n")
                 
-                cpp_file_path = os.path.join(root, f"{base_name}.cpp")
-                if os.path.exists(cpp_file_path):
-                    rel_cpp_path = cpp_file_path.replace(os.sep, '/')
-                    out.write(f"\\lstinputlisting{{{rel_cpp_path}}}\n\n")
+                if rel_tmp_path:
+                    out.write(f"\\lstinputlisting{{{rel_tmp_path}}}\n\n")
 
         out.write(LATEX_FOOTER)
     print(f"Successfully generated {OUTPUT_TEX} for {current_date}")
