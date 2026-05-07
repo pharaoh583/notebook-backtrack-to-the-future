@@ -22,7 +22,7 @@ jobs:
       - name: Compile LaTeX to PDF
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: notebook.tex
+          root_file: notebook-generated.tex
           compiler: pdflatex
 
       - name: Upload PDF Artifact

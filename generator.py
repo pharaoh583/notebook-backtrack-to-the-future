@@ -40,13 +40,15 @@ LATEX_HEADER = r"""\documentclass[10pt, landscape, twocolumn, a4paper, notitlepa
 %%% Encabezado y pie de página
 \pagestyle{fancy}
 \fancyhead[LO]{\leftmark\ -\ \rightmark}
-%\fancyhead[C]{\textbf{AJI-UBA}}
-\fancyhead[RO]{\textbf{(FFT) Final Fourier Tactics} - rev \revision\ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
+%\fancyhead[C]{\textbf{AJI-UBA}} el real...
+\fancyhead[RO]{\textbf{(FFT) Final Fourier Tactics} - rev __DATE__ - P\'agina \thepage\ de \pageref{LastPage}\ \begin{rotate}{270}\hspace{.8em}\underline{\textbf{Universidad Cat\'olica Boliviana - UCB }\hspace{4.1in}\ }\end{rotate}}
 \fancyfoot{}
 \fancyfoot[RO]{\begin{rotate}{270}\hspace{-10em}\textbf{Page \thepage\ of \pageref{LastPage}}\end{rotate}}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 \renewcommand{\footruleskip}{0.2in}
+\pagestyle{fancy}
+\fancyhead[LO]{\leftmark\ -\ \rightmark}
 
 %%% Configuración de Listings
 \lstloadlanguages{C++}
