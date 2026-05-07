@@ -19,12 +19,16 @@ jobs:
       - name: Generate LaTeX file
         run: python generator.py
 
+      - name: Install Japanese Fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-ipafont
+
       - name: Compile LaTeX to PDF
         uses: xu-cheng/latex-action@v3
         with:
           root_file: notebook_generated.tex
           compiler: xelatex
-          args: -latexoption=-file-line-error -latexoption=-interaction=nonstopmode
 
       - name: Upload PDF Artifact
         uses: actions/upload-artifact@v4
