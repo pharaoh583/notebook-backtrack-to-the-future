@@ -5,7 +5,7 @@
 // big mod and primitive root for NTT:
 typedef ll tf;
 typedef vector<tf> poly;
-const tf MOD=2305843009255636993,RT=5;
+// const tf MOD=2305843009255636993,RT=5;
 const double pi = acos(-1.0)
 // FFT
 struct CD {
@@ -18,7 +18,6 @@ CD operator*(const CD& a, const CD& b){
 	return CD(a.r*b.r-a.i*b.i,a.r*b.i+a.i*b.r);}
 CD operator+(const CD& a, const CD& b){return CD(a.r+b.r,a.i+b.i);}
 CD operator-(const CD& a, const CD& b){return CD(a.r-b.r,a.i-b.i);}
-const double pi=acos(-1.0);
 // NTT
 /*
 struct CD {
