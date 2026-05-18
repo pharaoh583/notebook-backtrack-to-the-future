@@ -1,7 +1,7 @@
 struct DSU {
-  vector<int> p, sz;
-  void init(int N) { sz.assign(N, 1);
-    p.resize(N); iota(all(p), 0); 
+  vi p, sz;
+  void init(int n) { sz.assign(n, 1);
+    p.resize(n); iota(all(p), 0); 
   }
   int get(int x) { 
     return x == p[x] ? x : p[x] = get(p[x]);
